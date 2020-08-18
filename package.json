@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/haroldcamacho/mosesBackend/issues"
   },
-  "homepage": "https://github.com/haroldcamacho/mosesBackend#readme"
+  "homepage": "https://github.com/haroldcamacho/mosesBackend#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
