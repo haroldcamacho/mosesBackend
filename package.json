@@ -1,0 +1,19 @@
+{
+  "name": "moses",
+  "version": "1.0.0",
+  "description": "Moses SMT backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haroldcamacho/mosesBackend.git"
+  },
+  "author": "Harold",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haroldcamacho/mosesBackend/issues"
+  },
+  "homepage": "https://github.com/haroldcamacho/mosesBackend#readme"
+}
