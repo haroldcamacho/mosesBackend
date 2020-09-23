@@ -15,7 +15,17 @@ router.get('/', async(req,res) =>{
 
 
 //Make a translation
-router.post('/', (req, res)=>{
+router.post('/', async (req, res)=>{
+    const translation = new Translation({
+        textToTranslate: req.body.textToTranslate
+    })
+    try{
+        const newTranslation = await translation.save()
+        res.status(201).json(newTranslation)
+    } catch(err){
+        res.status(400).json({message: err.message })
+    }
+
 
 })
 
