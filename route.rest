@@ -3,7 +3,6 @@ GET http://localhost:3000/translations
 ###
 POST http://localhost:3000/translations
 Content-Type: application/json
-
 {
-    "textToTranslate": "var1 Roassal"
+   "textToTranslate": "var1 Roassal"
 }
