@@ -1,11 +1,10 @@
 const express = require('express')
-const router = express.Router()
 const Translation = require('../models/translation')
+const router = express.Router()
 const validator = require('express-validator')
 //GetTranslations
 
 router.get('/', async(req,res) =>{
-
     try{
         const translations = await Translation.find();
         res.json(translations);
@@ -17,18 +16,11 @@ router.get('/', async(req,res) =>{
 
 //Make a translation
 router.post('/', async(req, res)=>{
+    let text = req.body.inputCode;
+    console.log("SSS");
     //req.translation = new Translation();
-    console.log(req.body.original_code)
-    // const translation = new Translation({
-    //     textToTranslate: req.body.textToTranslate
-    // })
-    // try{
-    //     const newTranslation = await translation.save()
-    //     res.status(201).json(ne  wTranslation)
-    // } catch(err){
-    //     res.status(400).json({message: err.message })
-    // }
-
+    // await new Promise(r => setTimeout(r, 4000));
+    console.log(req.body.inputCode);
 })
 
 
