@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <title>MosesDemo</title>
+</head>
+<body>
+    <h1>Pharo Code Demo</h1>
+    <form method="POST" action="/translations">
+        <table>
+            <tbody>
+                <tr>
+                    <td class="boxText">Pharo Decompiled Code</td>
+                    <td class="boxText">Pharo Renamed Code</td>
+                </tr>
+                <tr>
+                    <td class="boxText">
+                        <textarea id="original_code" name="source" cols="60" rows="5"></textarea>
+                    </td>     
+                    <td class="boxText">
+                        <textarea readonly name="target" cols="60" rows="5"></textarea>
+                    </td>              
+                </tr>
+            </tbody>
+        </table>
+        <input type="hidden" name="page_type" value="translate">
+        <input class="btn btn-success" type="submit" value="Translate">
+    </form>
+</body>
+</html>

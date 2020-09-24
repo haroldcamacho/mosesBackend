@@ -1,9 +1,12 @@
 require('dotenv').config()
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 const mongoose = require('mongoose');
 const PORT = process.env.PORT || 3000;
-app.use(express.json());
+// app.use(express.json());
+
+app.use(express.urlencoded({ extended: false }))
 app.set('view engine', 'ejs');
 
 //DB SETUP
@@ -22,9 +25,16 @@ app.get('/', (req, res) => {
     res.render('main.ejs');
 });
 
+//HANDLE INVALID ROUTES
+app.get('*', (req, res) => { 
+  res.render('error.ejs'); 
+});
+
 
 
 //SERVER
 app.listen(PORT, () => {
   console.log('Example app listening on port ' + PORT);
 });
+
+
