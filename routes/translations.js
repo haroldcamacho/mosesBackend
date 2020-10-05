@@ -3,8 +3,8 @@ const Translation = require('../models/translation')
 const router = express.Router()
 const validator = require('express-validator')
 const xmlrpc = require ("davexmlrpc");
-const urlEndpointXMLRPC = "http://localhost:8000/RPC2";
-const verb = "";
+const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
+const verb = "translate";
 const format = "xml"; //could also be "json"
 
 
@@ -25,10 +25,16 @@ router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
     let codewithoutTabs = deleteTabSpaces(originalCode);
-    let test = codewithoutTabs.replace(/\r\n|\r|\n/g, ' ');
+    let test = deleteLineBreaksFromText(codewithoutTabs);
     //console.log(separateBySpaceCharacter(test));
-    mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test));
-    // let codeDividedByLine = divideCodeByLine(codewithoutTabs);
+    //mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test));
+
+
+    let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
+    sendSimpleXMLRPC(french);
+
+
+    // let codeDividedByLine = divideCodeByLines(codewithoutTabs);
     // console.log(codeDividedByLine);
 
     // console.log(separateBySpaceCharacter(codeDividedByLine.join('')));
@@ -36,7 +42,21 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
-
+function sendSimpleXMLRPC(textToTranslate){
+    let requestMap = new Map();
+    requestMap.set("text", textToTranslate);
+    requestMap.set("align","false");
+    requestMap.set("report-all-factors","false");
+    let obj = [{"text": textToTranslate, "align":"false", "report-all-factors":"false"}];
+    xmlrpc.client (urlEndpointXMLRPC, verb, obj, format, function (err, data) {
+        if (err) {
+            console.log ("err.message == " + err.message);
+            }
+        else {
+            console.log (JSON.stringify (data));
+            }
+        });
+}
 
 function separateBySpaceCharacter(code) {
     return code.split(' ');
@@ -79,7 +99,10 @@ function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
 
 }
 
-function divideCodeByLine(code){
+
+
+
+function divideCodeByLines(code){
     return code.trim().split(/\r\n|\r|\n/g);
 }
 
@@ -87,8 +110,9 @@ function deleteTabSpaces(code){
     return code = code.replace(/\t/g, '');
 }
 
-function sendXMLRPC(text){
+function sendXMLRPC(textToTranslate){
     let requestMap = new Map();
+    requestMap.set("text", textToTranslate)
     map.set(text,'');
     xmlrpc.client(urlEndpointXMLRPC, verb, requestMap, format, (err,data) =>{
         if(err){
@@ -101,6 +125,13 @@ function sendXMLRPC(text){
     });
     return text;
 }
+
+
+
+function concatenateTranslatedLines(translatedCode){
+    return translateCode.join(' ');
+}
+
 
 function replaceVariableNames(originalCode, translatedCode) {
     
