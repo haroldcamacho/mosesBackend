@@ -25,10 +25,9 @@ router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
     let codewithoutTabs = deleteTabSpaces(originalCode);
-    console.log(codewithoutTabs);
-    
     let test = codewithoutTabs.replace(/\r\n|\r|\n/g, ' ');
-    console.log(separateBySpaceCharacter(test));
+    //console.log(separateBySpaceCharacter(test));
+    mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test));
     // let codeDividedByLine = divideCodeByLine(codewithoutTabs);
     // console.log(codeDividedByLine);
 
@@ -37,7 +36,9 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
-function separateTextBySpace(code) {
+
+
+function separateBySpaceCharacter(code) {
     return code.split(' ');
 }
 
@@ -45,12 +46,43 @@ function deleteLineBreaksFromText(code){
     return code.replace(/\r\n|\r|\n/g, ' ');
 }
 
-function mapDecompiledCodeVariablesWithPositions(originalCode){
+function hasTempOrVar(code){
     let variablesRegExp = /\bvar[0-9]\b|\btmp[0-9]\b/;
+    return (variablesRegExp.test(code));
 }
+
+function setValue(map, key, value){
+    key = deleteSpecialCharactersFromVariables(key);
+    if (!map.has(key)) {
+        map.set(key, [value]);
+        return;
+    }
+    map.get(key).push(value);
+}
+
+function deleteSpecialCharactersFromVariables(code){
+    let regExp = /\)|\(|\|/g;
+    return (code.replace(regExp,''));
+}
+
+function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
+    let variablesMap = new Map();
+
+    originalCodeAsArray.forEach((element,index) => {
+
+        if(hasTempOrVar(element)){
+            setValue(variablesMap, element, index)
+        }
+        
+    });
+    console.log(variablesMap);
+
+}
+
 function divideCodeByLine(code){
     return code.trim().split(/\r\n|\r|\n/g);
 }
+
 function deleteTabSpaces(code){
     return code = code.replace(/\t/g, '');
 }
