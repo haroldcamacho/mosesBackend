@@ -24,14 +24,35 @@ router.get('/', async(req,res) =>{
 router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
-    let codeDividedByLine = divideCodeByLine(originalCode);
-    translateCode(codeDividedByLine);
+    let codewithoutTabs = deleteTabSpaces(originalCode);
+    console.log(codewithoutTabs);
+    
+    let test = codewithoutTabs.replace(/\r\n|\r|\n/g, ' ');
+    console.log(separateBySpaceCharacter(test));
+    // let codeDividedByLine = divideCodeByLine(codewithoutTabs);
+    // console.log(codeDividedByLine);
+
+    // console.log(separateBySpaceCharacter(codeDividedByLine.join('')));
+    //translateCode(codeDividedByLine);
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
+function separateTextBySpace(code) {
+    return code.split(' ');
+}
 
+function deleteLineBreaksFromText(code){
+    return code.replace(/\r\n|\r|\n/g, ' ');
+}
+
+function mapDecompiledCodeVariablesWithPositions(originalCode){
+    let variablesRegExp = /\bvar[0-9]\b|\btmp[0-9]\b/;
+}
 function divideCodeByLine(code){
     return code.trim().split(/\r\n|\r|\n/g);
+}
+function deleteTabSpaces(code){
+    return code = code.replace(/\t/g, '');
 }
 
 function sendXMLRPC(text){
@@ -48,6 +69,16 @@ function sendXMLRPC(text){
     });
     return text;
 }
+
+function replaceVariableNames(originalCode, translatedCode) {
+    
+}
+
+function mapOriginalCodeVariables(originalCode){
+
+}
+
+
 
 function translateCode(code){
     return async(req, res) =>{
