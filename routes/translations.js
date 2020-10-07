@@ -6,7 +6,6 @@ const xmlrpc = require ("davexmlrpc");
 const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
 const verb = "translate";
 const format = "xml"; //could also be "json"
-const promisify = require('util');
 const { rejects } = require('assert');
 
 
@@ -45,10 +44,10 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
-async function translateDecompiledCodeToMoses(decompiledCode){
+async function translateDecompiledCodeWithMoses(decompiledCode){
     let translatedCode = [];
     decompiledCode.forEach(async (lineOfCode) => {
-       await sendSimpleXMLRPC(lineOfCode)
+       translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
     });
 }
 
@@ -57,17 +56,14 @@ async function sendSimpleXMLRPC(textToTranslate){
     return new Promise((resolve, reject) =>{
         xmlrpc.client (urlEndpointXMLRPC, verb, requestObject, format, async function(err, data) {
             if (err) {
-                //console.log ("err.message == " + err.message);
                 reject(err);
                 }
             else {
-                //console.log (JSON.stringify (data));
                 textToTranslate = await JSON.stringify(data);
                 resolve(data);
                 }
             });
-        //await new Promise(r => setTimeout(r, 2000));
-        //console.log("the text is: ", textToTranslate);
+
     });
     
 }
@@ -101,19 +97,13 @@ function deleteSpecialCharactersFromVariables(code){
 
 function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
     let variablesMap = new Map();
-
     originalCodeAsArray.forEach((element,index) => {
-
         if(hasTempOrVar(element)){
             setValue(variablesMap, element, index)
         }
-        
     });
     console.log(variablesMap);
-
 }
-
-
 
 
 function divideCodeByLines(code){
@@ -127,15 +117,6 @@ function deleteTabSpaces(code){
 
 function concatenateTranslatedLines(translatedCode){
     return translateCode.join(' ');
-}
-
-
-function replaceVariableNames(originalCode, translatedCode) {
-    
-}
-
-function mapOriginalCodeVariables(originalCode){
-
 }
 
 
