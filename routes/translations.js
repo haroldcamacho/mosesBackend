@@ -6,6 +6,8 @@ const xmlrpc = require ("davexmlrpc");
 const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
 const verb = "translate";
 const format = "xml"; //could also be "json"
+const promisify = require('util');
+const { rejects } = require('assert');
 
 
 //GetTranslations
@@ -31,7 +33,8 @@ router.post('/', async(req, res)=>{
 
 
     let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
-    sendSimpleXMLRPC(french);
+    let textPromise = await (sendSimpleXMLRPC(french));
+    console.log(textPromise);
 
 
     // let codeDividedByLine = divideCodeByLines(codewithoutTabs);
@@ -42,20 +45,31 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
-function sendSimpleXMLRPC(textToTranslate){
-    let requestMap = new Map();
-    requestMap.set("text", textToTranslate);
-    requestMap.set("align","false");
-    requestMap.set("report-all-factors","false");
-    let obj = [{"text": textToTranslate, "align":"false", "report-all-factors":"false"}];
-    xmlrpc.client (urlEndpointXMLRPC, verb, obj, format, function (err, data) {
-        if (err) {
-            console.log ("err.message == " + err.message);
-            }
-        else {
-            console.log (JSON.stringify (data));
-            }
-        });
+async function translateDecompiledCodeToMoses(decompiledCode){
+    let translatedCode = [];
+    decompiledCode.forEach(async (lineOfCode) => {
+       await sendSimpleXMLRPC(lineOfCode)
+    });
+}
+
+async function sendSimpleXMLRPC(textToTranslate){
+    let requestObject = [{"text": textToTranslate, "align":"false", "report-all-factors":"false"}];
+    return new Promise((resolve, reject) =>{
+        xmlrpc.client (urlEndpointXMLRPC, verb, requestObject, format, async function(err, data) {
+            if (err) {
+                //console.log ("err.message == " + err.message);
+                reject(err);
+                }
+            else {
+                //console.log (JSON.stringify (data));
+                textToTranslate = await JSON.stringify(data);
+                resolve(data);
+                }
+            });
+        //await new Promise(r => setTimeout(r, 2000));
+        //console.log("the text is: ", textToTranslate);
+    });
+    
 }
 
 function separateBySpaceCharacter(code) {
@@ -109,23 +123,6 @@ function divideCodeByLines(code){
 function deleteTabSpaces(code){
     return code = code.replace(/\t/g, '');
 }
-
-function sendXMLRPC(textToTranslate){
-    let requestMap = new Map();
-    requestMap.set("text", textToTranslate)
-    map.set(text,'');
-    xmlrpc.client(urlEndpointXMLRPC, verb, requestMap, format, (err,data) =>{
-        if(err){
-            console.log("err.message ==" + err.message);
-        }
-        else{
-            console.log(JSON.stringify(data));
-            text = JSON.stringify(data);
-        }
-    });
-    return text;
-}
-
 
 
 function concatenateTranslatedLines(translatedCode){
