@@ -7,7 +7,7 @@ const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
 const verb = "translate";
 const format = "xml"; //could also be "json"
 const { rejects } = require('assert');
-
+const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 
 //GetTranslations
 
@@ -27,19 +27,30 @@ router.post('/', async(req, res)=>{
     let originalCode = req.body.inputCode;
     let codewithoutTabs = deleteTabSpaces(originalCode);
     let test = deleteLineBreaksFromText(codewithoutTabs);
-    console.log(separateBySpaceCharacter(test));
+    //console.log(separateBySpaceCharacter(test));
 
-    console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test)));
+    //console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test)));
 
+    let mapDecompiled = mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test));
 
-    let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
-    let textPromise = await (sendSimpleXMLRPC(french));
-    console.log(textPromise);
+    // console.log(mapDecompiled);
+    // console.log('/n');
 
     let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
     "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
     "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
+    mapDecompiledVariablesWithTranslatedCode(mapDecompiled, testArray);
+
+
+    //XMLRPC
+    // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
+    // let textPromise = await (sendSimpleXMLRPC(french));
+    // console.log(JSON.stringify(textPromise.text));
+
+
+
+    //MISC
     // let codeDividedByLine = divideCodeByLines(codewithoutTabs);
     // console.log(codeDividedByLine);
 
@@ -58,12 +69,38 @@ function countDuplicateWordsFromArray(codeArray){
     return dictionary;
 }
 
-function selectMostUsedWord(arrayWithCounts){
-
+function dictionaryToSortedArray(dictionary){
+    let items = dictionaryToArray(dictionary);
+    items.sort(function(first, second) {
+    return second[1] - first[1];
+    });
+    return items;
 }
 
-async function mapDecompiledVariablesWithTranslatedCode(){
+function dictionaryToArray(dictionary) {
+    return Object.keys(dictionary).map(function (key) {
+        return [key, dictionary[key]];
+    });
+}
 
+function selectMostUsedWord(arrayWithCounts){
+    
+}
+
+async function mapDecompiledVariablesWithTranslatedCode(decompiledCodeMap, translatedCode){
+    //console.log(translatedCode);
+    decompiledCodeMap.forEach(( arrayOfPositions, variableName)=> {
+        let wordsFromTranslatedCode = [];
+        arrayOfPositions.forEach(element => {
+            wordsFromTranslatedCode.push(deleteSpecialCharactersFromVariables(translatedCode[element]));
+        });
+        //console.log("VAR IS: ",variableName ," ARRAY IS: ",wordsFromTranslatedCode);
+        let aux = countDuplicateWordsFromArray(wordsFromTranslatedCode);
+        console.log(aux);
+        let aux2 = dictionaryToSortedArray(aux);
+        console.log(aux2);
+        console.log("THE CHOSEN NAME IS: ", aux2[0][0]);
+    });
 }
 
 async function renameDecompiledVariables(decompiledCode, translatedCode){
@@ -87,7 +124,7 @@ async function sendSimpleXMLRPC(textToTranslate){
                 reject(err);
                 }
             else {
-                textToTranslate = await JSON.stringify(data);
+                //textToTranslate = await JSON.stringify(data);
                 resolve(data);
                 }
             });
@@ -99,6 +136,7 @@ async function sendSimpleXMLRPC(textToTranslate){
 function separateBySpaceCharacter(code) {
     return code.split(' ');
 }
+
 
 function deleteLineBreaksFromText(code){
     return code.replace(/\r\n|\r|\n/g, ' ');
@@ -118,10 +156,20 @@ function storeVariablesInDictionary(map, key, value){
     map.get(key).push(value);
 }
 
+
+function appendToSpecialCharacters(code){
+
+}
+
+
+function getSpecialCharactersPositions(code){
+
+}
+
 function deleteSpecialCharactersFromVariables(code){
     //let regExp = /\)|\(|\|/g;
-    let regExp =/[^0-9a-zA-Z]/g;
-    return (code.replace(regExp,''));
+    //let regExp =/[^0-9a-zA-Z]/g;
+    return (code.replace(specialCharactersRegex,''));
 }
 
 function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
