@@ -27,14 +27,18 @@ router.post('/', async(req, res)=>{
     let originalCode = req.body.inputCode;
     let codewithoutTabs = deleteTabSpaces(originalCode);
     let test = deleteLineBreaksFromText(codewithoutTabs);
-    //console.log(separateBySpaceCharacter(test));
-    //mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test));
+    console.log(separateBySpaceCharacter(test));
+
+    console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test)));
 
 
     let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
     let textPromise = await (sendSimpleXMLRPC(french));
     console.log(textPromise);
 
+    let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
+    "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
+    "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
     // let codeDividedByLine = divideCodeByLines(codewithoutTabs);
     // console.log(codeDividedByLine);
@@ -44,11 +48,35 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
+
+function countDuplicateWordsFromArray(codeArray){
+    let dictionary = {};
+    codeArray.forEach((x) => { 
+        dictionary[x] = (dictionary[x] || 0)+1; 
+        console.log(dictionary[x]);
+    });
+    return dictionary;
+}
+
+function selectMostUsedWord(arrayWithCounts){
+
+}
+
+async function mapDecompiledVariablesWithTranslatedCode(){
+
+}
+
+async function renameDecompiledVariables(decompiledCode, translatedCode){
+    let repeatedTranslatedVariables = new Map();
+
+}
+
 async function translateDecompiledCodeWithMoses(decompiledCode){
     let translatedCode = [];
     decompiledCode.forEach(async (lineOfCode) => {
        translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
     });
+    return translatedCode;
 }
 
 async function sendSimpleXMLRPC(textToTranslate){
@@ -76,12 +104,12 @@ function deleteLineBreaksFromText(code){
     return code.replace(/\r\n|\r|\n/g, ' ');
 }
 
-function hasTempOrVar(code){
-    let variablesRegExp = /\bvar[0-9]\b|\btmp[0-9]\b/;
+function hasTempOrArg(code){
+    let variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
     return (variablesRegExp.test(code));
 }
 
-function setValue(map, key, value){
+function storeVariablesInDictionary(map, key, value){
     key = deleteSpecialCharactersFromVariables(key);
     if (!map.has(key)) {
         map.set(key, [value]);
@@ -91,18 +119,19 @@ function setValue(map, key, value){
 }
 
 function deleteSpecialCharactersFromVariables(code){
-    let regExp = /\)|\(|\|/g;
+    //let regExp = /\)|\(|\|/g;
+    let regExp =/[^0-9a-zA-Z]/g;
     return (code.replace(regExp,''));
 }
 
 function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
     let variablesMap = new Map();
     originalCodeAsArray.forEach((element,index) => {
-        if(hasTempOrVar(element)){
-            setValue(variablesMap, element, index)
+        if(hasTempOrArg(element)){
+            storeVariablesInDictionary(variablesMap, element, index)
         }
     });
-    console.log(variablesMap);
+    return variablesMap;
 }
 
 
