@@ -26,12 +26,14 @@ router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
     let codewithoutTabs = deleteTabSpaces(originalCode);
-    let test = deleteLineBreaksFromText(codewithoutTabs);
+    let codeWithoutLineBreaks = deleteLineBreaksFromText(codewithoutTabs);
+    let decompiledCodeToRename = (separateBySpaceCharacter(codeWithoutLineBreaks));
+    let decompiledCodeToRenameWithoutEmptyElements = deleteWhitespacesFromArray(decompiledCodeToRename);
     //console.log(separateBySpaceCharacter(test));
 
-    //console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test)));
+    //console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(codeWithoutLineBreaks)));
 
-    let mapDecompiled = mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(test));
+    let mapDecompiled = mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(codeWithoutLineBreaks));
 
     // console.log(mapDecompiled);
     // console.log('/n');
@@ -40,7 +42,7 @@ router.post('/', async(req, res)=>{
     "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
     "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
-    mapDecompiledVariablesWithTranslatedCode(mapDecompiled, testArray);
+    mapDecompiledVariablesWithTranslatedCode(mapDecompiled, testArray, decompiledCodeToRenameWithoutEmptyElements);
 
 
     //XMLRPC
@@ -59,7 +61,7 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
-
+//RENAME DECOMPILED CODE
 function countDuplicateWordsFromArray(codeArray){
     let dictionary = {};
     codeArray.forEach((x) => { 
@@ -83,11 +85,21 @@ function dictionaryToArray(dictionary) {
     });
 }
 
+function appendToSpecialCharacters(code){
+
+}
+
+
+function getSpecialCharactersPositions(code){
+
+}
+
 function selectMostUsedWord(arrayWithCounts){
     
 }
 
-async function mapDecompiledVariablesWithTranslatedCode(decompiledCodeMap, translatedCode){
+
+async function mapDecompiledVariablesWithTranslatedCode(decompiledCodeMap, translatedCode, decompiledCode){
     //console.log(translatedCode);
     decompiledCodeMap.forEach(( arrayOfPositions, variableName)=> {
         let wordsFromTranslatedCode = [];
@@ -98,16 +110,18 @@ async function mapDecompiledVariablesWithTranslatedCode(decompiledCodeMap, trans
         let aux = countDuplicateWordsFromArray(wordsFromTranslatedCode);
         console.log(aux);
         let aux2 = dictionaryToSortedArray(aux);
-        console.log(aux2);
-        console.log("THE CHOSEN NAME IS: ", aux2[0][0]);
-    });
+        let chosenName = aux2[0][0];
+        console.log("THE CHOSEN NAME IS: ", chosenName);
+        renameOnDecompiledCode(decompiledCode, arrayOfPositions, chosenName);
+        });
 }
 
-async function renameDecompiledVariables(decompiledCode, translatedCode){
-    let repeatedTranslatedVariables = new Map();
-
+async function renameOnDecompiledCode(decompiledCode, positionsOfVariable, newVariable){
+    
 }
 
+
+//MOSES SERVER XMLRPC
 async function translateDecompiledCodeWithMoses(decompiledCode){
     let translatedCode = [];
     decompiledCode.forEach(async (lineOfCode) => {
@@ -133,13 +147,19 @@ async function sendSimpleXMLRPC(textToTranslate){
     
 }
 
+//TEXT FUNCTIONS
+
 function separateBySpaceCharacter(code) {
     return code.split(' ');
 }
 
 
 function deleteLineBreaksFromText(code){
-    return code.replace(/\r\n|\r|\n/g, ' ');
+    return code.replace(/\r\n|\r|\n/gm, ' ');
+}
+
+function deleteWhitespacesFromArray(code){
+    return code.filter(item => item.trim() !== '');
 }
 
 function hasTempOrArg(code){
@@ -154,16 +174,6 @@ function storeVariablesInDictionary(map, key, value){
         return;
     }
     map.get(key).push(value);
-}
-
-
-function appendToSpecialCharacters(code){
-
-}
-
-
-function getSpecialCharactersPositions(code){
-
 }
 
 function deleteSpecialCharactersFromVariables(code){
