@@ -8,6 +8,7 @@ const verb = "translate";
 const format = "xml"; //could also be "json"
 const { rejects } = require('assert');
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
+const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
 
 //GetTranslations
 
@@ -42,9 +43,10 @@ router.post('/', async(req, res)=>{
     "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
     "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
-    mapDecompiledVariablesWithTranslatedCode(mapDecompiled, testArray, decompiledCodeToRenameWithoutEmptyElements);
+    let result = renameDecompiledCode(mapDecompiled, testArray, decompiledCodeToRenameWithoutEmptyElements);
 
-
+    console.log(result);
+    
     //XMLRPC
     // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
     // let textPromise = await (sendSimpleXMLRPC(french));
@@ -60,6 +62,9 @@ router.post('/', async(req, res)=>{
     //translateCode(codeDividedByLine);
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
+
+
+
 
 //RENAME DECOMPILED CODE
 function countDuplicateWordsFromArray(codeArray){
@@ -85,40 +90,31 @@ function dictionaryToArray(dictionary) {
     });
 }
 
-function appendToSpecialCharacters(code){
-
-}
 
 
-function getSpecialCharactersPositions(code){
-
-}
-
-function selectMostUsedWord(arrayWithCounts){
-    
-}
-
-
-async function mapDecompiledVariablesWithTranslatedCode(decompiledCodeMap, translatedCode, decompiledCode){
+function renameDecompiledCode(decompiledCodeMap, translatedCode, decompiledCode){
     //console.log(translatedCode);
     decompiledCodeMap.forEach(( arrayOfPositions, variableName)=> {
         let wordsFromTranslatedCode = [];
         arrayOfPositions.forEach(element => {
             wordsFromTranslatedCode.push(deleteSpecialCharactersFromVariables(translatedCode[element]));
         });
-        //console.log("VAR IS: ",variableName ," ARRAY IS: ",wordsFromTranslatedCode);
         let aux = countDuplicateWordsFromArray(wordsFromTranslatedCode);
-        console.log(aux);
         let aux2 = dictionaryToSortedArray(aux);
         let chosenName = aux2[0][0];
-        console.log("THE CHOSEN NAME IS: ", chosenName);
-        renameOnDecompiledCode(decompiledCode, arrayOfPositions, chosenName);
+        console.log("THE CHOSEN NAME FOR:",variableName ," IS: ", chosenName);
+        decompiledCode = renameOnDecompiledCode(decompiledCode, arrayOfPositions, chosenName);
         });
+    return decompiledCode;
 }
 
-async function renameOnDecompiledCode(decompiledCode, positionsOfVariable, newVariable){
-    
+function renameOnDecompiledCode(decompiledCode, variablePositions, newVariableName){
+    variablePositions.forEach(variablePosition => {
+        decompiledCode[variablePosition] = decompiledCode[variablePosition].replace(variablesRegExp,newVariableName)
+    });
+    return decompiledCode;
 }
+
 
 
 //MOSES SERVER XMLRPC
@@ -162,8 +158,7 @@ function deleteWhitespacesFromArray(code){
     return code.filter(item => item.trim() !== '');
 }
 
-function hasTempOrArg(code){
-    let variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
+function isVariableToRename(code){
     return (variablesRegExp.test(code));
 }
 
@@ -185,7 +180,7 @@ function deleteSpecialCharactersFromVariables(code){
 function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
     let variablesMap = new Map();
     originalCodeAsArray.forEach((element,index) => {
-        if(hasTempOrArg(element)){
+        if(isVariableToRename(element)){
             storeVariablesInDictionary(variablesMap, element, index)
         }
     });
