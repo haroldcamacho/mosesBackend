@@ -5,8 +5,9 @@ const validator = require('express-validator')
 const xmlrpc = require ("davexmlrpc");
 const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
 const verb = "translate";
-const format = "xml"; //could also be "json"
+const format = "xml";
 const { rejects } = require('assert');
+const { type } = require('os');
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
 
@@ -26,17 +27,43 @@ router.get('/', async(req,res) =>{
 router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
+
+    console.log(typeof(originalCode));
+    // let aux = deleteTabSpaces(originalCode);
+    // aux = divideCodeByLines(aux)
+    // console.log("CODE DIVIDED BY LINES \n",aux);
+    // console.log(typeof(aux));
+    // let aux2 = JSON.stringify(aux);
+    // console.log("CODE STRING \n", aux2);
+    // console.log(typeof(aux2));
+
+    //console.log(JSON.stringify(aux));
+    //console.log(divideCodeByLines(originalCode));
+
+
+    let test = processCodeForVariableMapping(originalCode);
+
+    console.log("array with function \n", test);
+
     let codewithoutTabs = deleteTabSpaces(originalCode);
     let codeWithoutLineBreaks = deleteLineBreaksFromText(codewithoutTabs);
     let decompiledCodeToRename = (separateBySpaceCharacter(codeWithoutLineBreaks));
     let decompiledCodeToRenameWithoutEmptyElements = deleteWhitespacesFromArray(decompiledCodeToRename);
+
+    
     //console.log(separateBySpaceCharacter(test));
 
     //console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(codeWithoutLineBreaks)));
 
-    let mapDecompiled = mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(codeWithoutLineBreaks));
+    let mapInput = separateBySpaceCharacter(codeWithoutLineBreaks);
+    console.log("manual processed \n", mapInput);
+    let mapDecompiled = mapDecompiledCodeVariablesWithPositions(deleteWhitespacesFromArray(mapInput));
 
-    // console.log(mapDecompiled);
+
+
+    console.log(mapDecompiled);
+
+    console.log("Code with process function \n", mapDecompiledCodeVariablesWithPositions(test));
     // console.log('/n');
 
     let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
@@ -45,7 +72,7 @@ router.post('/', async(req, res)=>{
 
     let result = renameDecompiledCode(mapDecompiled, testArray, decompiledCodeToRenameWithoutEmptyElements);
 
-    console.log(result);
+    //console.log(result.join(' '));
     
     //XMLRPC
     // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
@@ -64,14 +91,34 @@ router.post('/', async(req, res)=>{
 })
 
 
+function processCodeForVariableMapping(inputCode){
+    let processedCode = deleteTabSpaces(inputCode);
+    processedCode = deleteLineBreaksFromText(processedCode);
+    processedCode = separateBySpaceCharacter(processedCode);
+    processedCode = deleteWhitespacesFromArray(processedCode);
+    return processedCode;
+}
 
+function processCodeToBeRenamed(inputCode){
+    let processedCode = separateBySpaceCharacter(inputCode)
+    return processedCode;
+}
+
+function preProcessInputCode(code){
+    let processedCode = deleteTabSpaces(code);
+
+}
+
+
+function mapLineBreaks(code){
+
+}
 
 //RENAME DECOMPILED CODE
 function countDuplicateWordsFromArray(codeArray){
     let dictionary = {};
     codeArray.forEach((x) => { 
         dictionary[x] = (dictionary[x] || 0)+1; 
-        console.log(dictionary[x]);
     });
     return dictionary;
 }
@@ -102,7 +149,7 @@ function renameDecompiledCode(decompiledCodeMap, translatedCode, decompiledCode)
         let aux = countDuplicateWordsFromArray(wordsFromTranslatedCode);
         let aux2 = dictionaryToSortedArray(aux);
         let chosenName = aux2[0][0];
-        console.log("THE CHOSEN NAME FOR:",variableName ," IS: ", chosenName);
+        //console.log("THE CHOSEN NAME FOR:",variableName ," IS: ", chosenName);
         decompiledCode = renameOnDecompiledCode(decompiledCode, arrayOfPositions, chosenName);
         });
     return decompiledCode;
@@ -154,6 +201,10 @@ function deleteLineBreaksFromText(code){
     return code.replace(/\r\n|\r|\n/gm, ' ');
 }
 
+function divideCodeByLines(code){
+    return code.trim().split(/\r\n|\r|\n/g);
+}
+
 function deleteWhitespacesFromArray(code){
     return code.filter(item => item.trim() !== '');
 }
@@ -187,10 +238,6 @@ function mapDecompiledCodeVariablesWithPositions(originalCodeAsArray){
     return variablesMap;
 }
 
-
-function divideCodeByLines(code){
-    return code.trim().split(/\r\n|\r|\n/g);
-}
 
 function deleteTabSpaces(code){
     return code = code.replace(/\t/g, '');
