@@ -28,7 +28,6 @@ router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
 
-    console.log(typeof(originalCode));
     // let aux = deleteTabSpaces(originalCode);
     // aux = divideCodeByLines(aux)
     // console.log("CODE DIVIDED BY LINES \n",aux);
@@ -41,39 +40,23 @@ router.post('/', async(req, res)=>{
     //console.log(divideCodeByLines(originalCode));
 
 
-    let test = processCodeForVariableMapping(originalCode);
-
-    console.log("array with function \n", test);
-
-    let codewithoutTabs = deleteTabSpaces(originalCode);
-    let codeWithoutLineBreaks = deleteLineBreaksFromText(codewithoutTabs);
-    let decompiledCodeToRename = (separateBySpaceCharacter(codeWithoutLineBreaks));
-    let decompiledCodeToRenameWithoutEmptyElements = deleteWhitespacesFromArray(decompiledCodeToRename);
-
-    
-    //console.log(separateBySpaceCharacter(test));
-
-    //console.log(mapDecompiledCodeVariablesWithPositions(separateBySpaceCharacter(codeWithoutLineBreaks)));
-
-    let mapInput = separateBySpaceCharacter(codeWithoutLineBreaks);
-    console.log("manual processed \n", mapInput);
-    let mapDecompiled = mapDecompiledCodeVariablesWithPositions(deleteWhitespacesFromArray(mapInput));
+    let processedInputCode = processInputCode(originalCode);
 
 
-
-    console.log(mapDecompiled);
-
-    console.log("Code with process function \n", mapDecompiledCodeVariablesWithPositions(test));
+    let processedInputMap = mapDecompiledCodeVariablesWithPositions(processedInputCode);
     // console.log('/n');
 
     let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
     "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
     "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
-    let result = renameDecompiledCode(mapDecompiled, testArray, decompiledCodeToRenameWithoutEmptyElements);
+    let result = renameDecompiledCode(processedInputMap, testArray, processedInputCode);
 
-    //console.log(result.join(' '));
+   // console.log(result.join(' '));
     
+    //console.log(processedInputCode);
+    processInputCodeForMoses(originalCode);
+
     //XMLRPC
     // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
     // let textPromise = await (sendSimpleXMLRPC(french));
@@ -91,7 +74,7 @@ router.post('/', async(req, res)=>{
 })
 
 
-function processCodeForVariableMapping(inputCode){
+function processInputCode(inputCode){
     let processedCode = deleteTabSpaces(inputCode);
     processedCode = deleteLineBreaksFromText(processedCode);
     processedCode = separateBySpaceCharacter(processedCode);
@@ -99,19 +82,32 @@ function processCodeForVariableMapping(inputCode){
     return processedCode;
 }
 
-function processCodeToBeRenamed(inputCode){
-    let processedCode = separateBySpaceCharacter(inputCode)
-    return processedCode;
+function mapLineBreaks(inputCode){
+    let lineBreaksPosition = [];
+    let newCode = [];
+    inputCode.forEach(element => {
+        lineBreaksPosition.push(element.split(' ').length);
+    });
+    console.log(lineBreaksPosition);
 }
 
-function preProcessInputCode(code){
-    let processedCode = deleteTabSpaces(code);
 
+function processInputCodeForMoses(inputCode){
+    let processedCode = deleteTabSpaces(inputCode);
+    processedCode = divideCodeByLines(processedCode);
+    //processedCode = separateBySpaceCharacter(JSON.stringify(processedCode));
+    //console.log(JSON.stringify(processedCode));
+    console.log(processedCode);
 }
 
-
-function mapLineBreaks(code){
-
+async function translateLineByLineWithMoses(codeDividedByLines){
+    let linesOfTranslatedCode = [];
+    let translatedLine;
+    codeDividedByLines.forEach(async (line) => {
+      translatedLine = await sendSimpleXMLRPC(line);
+      linesOfTranslatedCode.push(translatedLine);
+    });
+    return linesOfTranslatedCode;
 }
 
 //RENAME DECOMPILED CODE
@@ -140,7 +136,6 @@ function dictionaryToArray(dictionary) {
 
 
 function renameDecompiledCode(decompiledCodeMap, translatedCode, decompiledCode){
-    //console.log(translatedCode);
     decompiledCodeMap.forEach(( arrayOfPositions, variableName)=> {
         let wordsFromTranslatedCode = [];
         arrayOfPositions.forEach(element => {
@@ -181,11 +176,9 @@ async function sendSimpleXMLRPC(textToTranslate){
                 reject(err);
                 }
             else {
-                //textToTranslate = await JSON.stringify(data);
                 resolve(data);
                 }
             });
-
     });
     
 }
