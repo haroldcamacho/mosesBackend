@@ -39,7 +39,6 @@ router.post('/', async(req, res)=>{
     //console.log(JSON.stringify(aux));
     //console.log(divideCodeByLines(originalCode));
 
-
     let processedInputCode = processInputCode(originalCode);
 
 
@@ -52,10 +51,19 @@ router.post('/', async(req, res)=>{
 
     let result = renameDecompiledCode(processedInputMap, testArray, processedInputCode);
 
-   // console.log(result.join(' '));
+    //console.log(result[0]);
+    //console.log(result.join(' '));
     
+
+    //TO DO
     //console.log(processedInputCode);
-    processInputCodeForMoses(originalCode);
+    //processInputCodeForMoses(originalCode);
+
+    let codeByLine = processInputCodeForMoses(originalCode);
+    let lineBreaksPositions = mapLineBreaks(codeByLine);
+    let newCode = addLineBreaksToTranslatedCode(lineBreaksPositions, result);
+    newCode = newCode.join(''),
+    console.log("THE NEW CODE IS: \n", newCode);
 
     //XMLRPC
     // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
@@ -73,6 +81,20 @@ router.post('/', async(req, res)=>{
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
+function addLineBreaksToTranslatedCode(lineBreaksMap, codeSeparatedByWords){
+    let codeJoinedByLines = [];
+    let lineOfCode = "";
+    lineBreaksMap.forEach(element => {
+        for (let index = 0; index < element; index++) {
+            lineOfCode = lineOfCode.concat(codeSeparatedByWords.shift()," ");
+        }
+        lineOfCode = lineOfCode.trimEnd();
+        codeJoinedByLines.push(lineOfCode.concat("\r\n"));
+        lineOfCode = "";
+    });
+    return codeJoinedByLines;
+}
+
 
 function processInputCode(inputCode){
     let processedCode = deleteTabSpaces(inputCode);
@@ -84,11 +106,10 @@ function processInputCode(inputCode){
 
 function mapLineBreaks(inputCode){
     let lineBreaksPosition = [];
-    let newCode = [];
     inputCode.forEach(element => {
         lineBreaksPosition.push(element.split(' ').length);
     });
-    console.log(lineBreaksPosition);
+    return lineBreaksPosition;
 }
 
 
@@ -98,6 +119,7 @@ function processInputCodeForMoses(inputCode){
     //processedCode = separateBySpaceCharacter(JSON.stringify(processedCode));
     //console.log(JSON.stringify(processedCode));
     console.log(processedCode);
+    return processedCode;
 }
 
 async function translateLineByLineWithMoses(codeDividedByLines){
