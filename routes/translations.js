@@ -59,14 +59,17 @@ router.post('/', async(req, res)=>{
     //console.log(processedInputCode);
     //processInputCodeForMoses(originalCode);
 
-    let codeByLine = processInputCodeForMoses(originalCode);
-    let lineBreaksPositions = mapLineBreaks(codeByLine);
-    let newCode = addLineBreaksToTranslatedCode(lineBreaksPositions, result);
-    newCode = newCode.join(''),
-    console.log("THE NEW CODE IS: \n", newCode);
+    // let codeByLine = processInputCodeForMoses(originalCode);
+    // let lineBreaksPositions = mapLineBreaks(codeByLine);
+    // let newCode = addLineBreaksToTranslatedCode(lineBreaksPositions, result);
+    // newCode = newCode.join(''),
+    // console.log("THE NEW CODE IS: \n", newCode);
 
     //XMLRPC
-    // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
+    let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
+    let frenchArray = ["faire revenir les militants sur le terrain et convaincre que le vote est utile .", "après ajustement à l ’ inflation"];
+    let arrayTranslated = await sendLineByLineToMoses(frenchArray);
+    console.log("RESULT IS: ",arrayTranslated);
     // let textPromise = await (sendSimpleXMLRPC(french));
     // console.log(JSON.stringify(textPromise.text));
 
@@ -80,6 +83,24 @@ router.post('/', async(req, res)=>{
     //translateCode(codeDividedByLine);
     // let originalCode = JSON.stringify(req.body.inputCode);
 })
+
+async function translateCode(code){
+    let processedInputCode = processInputCode(originalCode);
+    let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
+    let processedInputMap = mapDecompiledCodeVariablesWithPositions(processedInputCode);
+    let translatedCodeByLines = sendLineByLineToMoses(inputCodeSeparatedByLines);
+
+
+
+}
+
+function makeACompleteTranslation(path){
+    return async (req, res) =>{
+        let translation = req.translation;
+        translation.textToTranslate = req.body.inputCode;
+        translation.translatedText = await translateCode()
+    }     
+}
 
 function addLineBreaksToTranslatedCode(lineBreaksMap, codeSeparatedByWords){
     let codeJoinedByLines = [];
@@ -182,12 +203,44 @@ function renameOnDecompiledCode(decompiledCode, variablePositions, newVariableNa
 
 
 //MOSES SERVER XMLRPC
-async function translateDecompiledCodeWithMoses(decompiledCode){
-    let translatedCode = [];
-    decompiledCode.forEach(async (lineOfCode) => {
-       translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
-    });
-    return translatedCode;
+async function sendLineByLineToMoses(decompiledCodeSeparatedByLines){
+    //let translatedCode = [];
+    
+    // return new Promise((resolve, reject)=>{
+    //     let translatedCode = [];
+    //     decompiledCodeSeparatedByLines.forEach(async (lineOfCode) => {
+    //     translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
+    //     });
+    //     resolve(translateCode)
+    // });
+    
+
+    //USUAL
+    // decompiledCodeSeparatedByLines.forEach(async (lineOfCode) => {
+    // translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
+    // console.log(translatedCode);
+    // });
+    // console.log("OUTSIDE \n", translatedCode);
+    // return translatedCode;
+
+    // try {
+    //     decompiledCodeSeparatedByLines.forEach(async (lineOfCode) => {
+    //         translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
+    //     });
+    //     return translatedCode;
+    // } catch (error) {
+    //     return "ERROR";
+    // }
+
+        let translatedCode = [];
+        let lineOfCode = "";
+        for (let index = 0; index < decompiledCodeSeparatedByLines.length; index++) {
+            lineOfCode = await sendSimpleXMLRPC(decompiledCodeSeparatedByLines[index]);
+            translatedCode.push(lineOfCode);
+            console.log(translatedCode);
+        }
+        return translatedCode;
+
 }
 
 async function sendSimpleXMLRPC(textToTranslate){
@@ -265,21 +318,6 @@ function concatenateTranslatedLines(translatedCode){
 
 
 
-function translateCode(code){
-    return async(req, res) =>{
-        let translation = req.translation
-        let originalType = req.body.original_code
-        console.log(originalType);
-        translation.textToTranslate = req.body.original_code
 
-        console.log("this is "+req.body.original_code+"\n")
-        // try{
-        //     console.log(translation.textToTranslate);
-        // }
-        // catch(e){
-        //     console.log(e);
-        // }
-    }
-}
 
 module.exports = router
