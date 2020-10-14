@@ -28,32 +28,24 @@ router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let originalCode = req.body.inputCode;
 
-    // let aux = deleteTabSpaces(originalCode);
-    // aux = divideCodeByLines(aux)
-    // console.log("CODE DIVIDED BY LINES \n",aux);
-    // console.log(typeof(aux));
-    // let aux2 = JSON.stringify(aux);
-    // console.log("CODE STRING \n", aux2);
-    // console.log(typeof(aux2));
 
-    //console.log(JSON.stringify(aux));
-    //console.log(divideCodeByLines(originalCode));
+    translateCode(originalCode);
 
-    let processedInputCode = processInputCode(originalCode);
+    //--------------------------
+    // let processedInputCode = processInputCode(originalCode);
 
+    // let processedInputMap = mapDecompiledCodeVariablesWithPositions(processedInputCode);
 
-    let processedInputMap = mapDecompiledCodeVariablesWithPositions(processedInputCode);
-    // console.log('/n');
+    // let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
+    // "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
+    // "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
-    let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
-    "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
-    "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
-
-    let result = renameDecompiledCode(processedInputMap, testArray, processedInputCode);
+    // let result = renameDecompiledCode(processedInputMap, testArray, processedInputCode);
     
+
     //console.log(result[0]);
     //console.log(result.join(' '));
-    
+    //------------------------------
 
     //TO DO
     //console.log(processedInputCode);
@@ -65,42 +57,49 @@ router.post('/', async(req, res)=>{
     // newCode = newCode.join(''),
     // console.log("THE NEW CODE IS: \n", newCode);
 
-    //XMLRPC
-    let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile.";
-    let frenchArray = ["faire revenir les militants sur le terrain et convaincre que le vote est utile.","après ajustement à l ’ inflation"];
-    let arrayTranslated = await sendLineByLineToMoses(frenchArray);
-    arrayTranslated = arrayTranslated.map(el => el.trim());
-    let separatedByWords = separateCodeInLinesByWords(arrayTranslated);
-    console.log("CODE SEPARATED  BY WORDS////////",separatedByWords);
-    let lineBreaksPosition = mapLineBreaks(arrayTranslated);
-    let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPosition, separatedByWords)
-    console.log("ARRAY WITH LINEBREAKS\n", repositionedCode);
-    repositionedCode = repositionedCode.join(' ');
-    console.log("REP CODE IS: \n", repositionedCode);
+    //XMLRPC FRENCK
+
+    // let frenchArrayInput = processInputCodeForMoses(originalCode);
+    // console.log("FRENCH INPUT-----------", frenchArrayInput);
+
+    // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile.";
+    // let frenchArray = ["faire revenir les militants sur le terrain et convaincre que le vote est utile.","après ajustement à l ’ inflation"];
+    // let arrayTranslated = await sendLineByLineToMoses(frenchArrayInput);
+    // //arrayTranslated = arrayTranslated.map(el => el.trim());
+    // let separatedByWords = separateCodeInLinesByWords(arrayTranslated);
+    // console.log("CODE SEPARATED  BY WORDS////////",separatedByWords);
+    // let lineBreaksPosition = mapLineBreaks(arrayTranslated);
+    // let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPosition, separatedByWords)
+    // console.log("ARRAY WITH LINEBREAKS\n", repositionedCode);
+    // repositionedCode = repositionedCode.join(' ');
+    // console.log("REP CODE IS: \n", repositionedCode);
     
 
-    console.log(separatedByWords);
     // let textPromise = await (sendSimpleXMLRPC(french));
     // console.log(JSON.stringify(textPromise.text));
 
 
 
-    //MISC
-    // let codeDividedByLine = divideCodeByLines(codewithoutTabs);
-    // console.log(codeDividedByLine);
 
-    // console.log(separateBySpaceCharacter(codeDividedByLine.join('')));
-    //translateCode(codeDividedByLine);
-    // let originalCode = JSON.stringify(req.body.inputCode);
 })
 
-async function translateCode(code){
+function translateCode(originalCode){
     let processedInputCode = processInputCode(originalCode);
+    console.log("ORIGINAL CODE: \n", processedInputCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
-    let translatedCodeByLines = sendLineByLineToMoses(inputCodeSeparatedByLines);
-    let translatedCodeInWords = separateBySpaceCharacter(translatedCodeByLines);
-    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeByLines, )
+
+    //let translatedCodeByLines = sendLineByLineToMoses(inputCodeSeparatedByLines);
+
+    let translatedCodeSeparatedByLines = ["withExtension: extension","| basename name |","basename := self basename.","^ (basename endsWith: extension)",
+    "ifTrue: [ self ]","ifFalse: [ name := basename copyUpToLast: self extensionDelimiter.","self withName: name extension: extension ]"]
+    let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
+    console.log("WORDS \n", translatedCodeSeparatedByWords)
+
+    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode)
+    
+    console.log("RESULT \n", renamedCode);
+    return renamedCode;
 
 }
 
@@ -146,22 +145,10 @@ function mapLineBreaks(inputCode){
 
 function processInputCodeForMoses(inputCode){
     let processedCode = deleteTabSpaces(inputCode);
-    processedCode = divideCodeByLines(processedCode);
-    //processedCode = separateBySpaceCharacter(JSON.stringify(processedCode));
-    //console.log(JSON.stringify(processedCode));
-    console.log(processedCode);
+    processedCode = divideCodeByLines(processedCode);    
     return processedCode;
 }
 
-async function translateLineByLineWithMoses(codeDividedByLines){
-    let linesOfTranslatedCode = [];
-    let translatedLine;
-    codeDividedByLines.forEach(async (line) => {
-      translatedLine = await sendSimpleXMLRPC(line);
-      linesOfTranslatedCode.push(translatedLine);
-    });
-    return linesOfTranslatedCode;
-}
 
 //RENAME DECOMPILED CODE
 function countDuplicateWordsFromArray(codeArray){
@@ -300,9 +287,7 @@ function concatenateTranslatedLines(translatedCode){
 
 
 function separateCodeInLinesByWords(arrayOfLines){
-    console.log("ARRAY IN LINES: \n",arrayOfLines)
     let processedCode = arrayOfLines.join(' ');
-    console.log("++++++++++++ code in string: \n",processedCode)
     processedCode = processedCode.trim();
     processedCode = processedCode.split(' ');
     processedCode = deleteWhitespacesFromArray(processedCode)
