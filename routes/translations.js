@@ -8,6 +8,7 @@ const verb = "translate";
 const format = "xml";
 const { rejects } = require('assert');
 const { type } = require('os');
+const { nextTick } = require('process');
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
 
@@ -26,10 +27,27 @@ router.get('/', async(req,res) =>{
 //Make a translation
 router.post('/', async(req, res)=>{
     req.translation = new Translation();
-    let originalCode = req.body.inputCode;
+
+    let translation = req.translation;
+    let inputCode = req.body.inputCode;
+    translation.textToTranslate = inputCode;
+    let translatedCode = translateCode(inputCode);
+    console.log(translatedCode);
+    translation.translatedText =  translatedCode;
+
+    try {
+        translation = await translation.save();
+        res.render(`translated.ejs`, {
+            originalCode: inputCode , translatedCode: translatedCode})
+    } catch (error) {
+        console.log(error);
+        res.redirect(`/error`)
+    }
+    
+    //let originalCode = req.body.inputCode;
 
 
-    translateCode(originalCode);
+    //translateCode(originalCode);
 
     //--------------------------
     // let processedInputCode = processInputCode(originalCode);
@@ -85,7 +103,6 @@ router.post('/', async(req, res)=>{
 
 function translateCode(originalCode){
     let processedInputCode = processInputCode(originalCode);
-    console.log("ORIGINAL CODE: \n", processedInputCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
 
@@ -93,21 +110,30 @@ function translateCode(originalCode){
 
     let translatedCodeSeparatedByLines = ["withExtension: extension","| basename name |","basename := self basename.","^ (basename endsWith: extension)",
     "ifTrue: [ self ]","ifFalse: [ name := basename copyUpToLast: self extensionDelimiter.","self withName: name extension: extension ]"]
+    let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
-    console.log("WORDS \n", translatedCodeSeparatedByWords)
+    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
+    let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPositions, renamedCode)
+    repositionedCode = repositionedCode.join(' ');
 
-    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode)
-    
-    console.log("RESULT \n", renamedCode);
-    return renamedCode;
+    return repositionedCode;
 
 }
 
-function makeACompleteTranslation(path){
+function saveTranslationAndRedirect(path){
     return async (req, res) =>{
         let translation = req.translation;
-        translation.textToTranslate = req.body.inputCode;
-        translation.translatedText = await translateCode()
+        let inputCode = req.body.inputCode;
+        translation.textToTranslate = inputCode;
+        translation.translatedText =  translateCode(inputCode);
+        console.log("LOGGER");
+
+        try {
+            translation = await translation.save();
+            res.redirect(`/translations`)
+        } catch (error) {
+            res.redirect(`/error`)
+        }
     }     
 }
 
