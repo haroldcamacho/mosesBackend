@@ -50,7 +50,7 @@ router.post('/', async(req, res)=>{
     "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
 
     let result = renameDecompiledCode(processedInputMap, testArray, processedInputCode);
-
+    
     //console.log(result[0]);
     //console.log(result.join(' '));
     
@@ -66,10 +66,20 @@ router.post('/', async(req, res)=>{
     // console.log("THE NEW CODE IS: \n", newCode);
 
     //XMLRPC
-    let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile .";
-    let frenchArray = ["faire revenir les militants sur le terrain et convaincre que le vote est utile .", "après ajustement à l ’ inflation"];
+    let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile.";
+    let frenchArray = ["faire revenir les militants sur le terrain et convaincre que le vote est utile.","après ajustement à l ’ inflation"];
     let arrayTranslated = await sendLineByLineToMoses(frenchArray);
-    console.log("RESULT IS: ",arrayTranslated);
+    arrayTranslated = arrayTranslated.map(el => el.trim());
+    let separatedByWords = separateCodeInLinesByWords(arrayTranslated);
+    console.log("CODE SEPARATED  BY WORDS////////",separatedByWords);
+    let lineBreaksPosition = mapLineBreaks(arrayTranslated);
+    let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPosition, separatedByWords)
+    console.log("ARRAY WITH LINEBREAKS\n", repositionedCode);
+    repositionedCode = repositionedCode.join(' ');
+    console.log("REP CODE IS: \n", repositionedCode);
+    
+
+    console.log(separatedByWords);
     // let textPromise = await (sendSimpleXMLRPC(french));
     // console.log(JSON.stringify(textPromise.text));
 
@@ -87,10 +97,10 @@ router.post('/', async(req, res)=>{
 async function translateCode(code){
     let processedInputCode = processInputCode(originalCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
-    let processedInputMap = mapDecompiledCodeVariablesWithPositions(processedInputCode);
+    let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
     let translatedCodeByLines = sendLineByLineToMoses(inputCodeSeparatedByLines);
-
-
+    let translatedCodeInWords = separateBySpaceCharacter(translatedCodeByLines);
+    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeByLines, )
 
 }
 
@@ -204,40 +214,11 @@ function renameOnDecompiledCode(decompiledCode, variablePositions, newVariableNa
 
 //MOSES SERVER XMLRPC
 async function sendLineByLineToMoses(decompiledCodeSeparatedByLines){
-    //let translatedCode = [];
-    
-    // return new Promise((resolve, reject)=>{
-    //     let translatedCode = [];
-    //     decompiledCodeSeparatedByLines.forEach(async (lineOfCode) => {
-    //     translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
-    //     });
-    //     resolve(translateCode)
-    // });
-    
-
-    //USUAL
-    // decompiledCodeSeparatedByLines.forEach(async (lineOfCode) => {
-    // translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
-    // console.log(translatedCode);
-    // });
-    // console.log("OUTSIDE \n", translatedCode);
-    // return translatedCode;
-
-    // try {
-    //     decompiledCodeSeparatedByLines.forEach(async (lineOfCode) => {
-    //         translatedCode.push(await sendSimpleXMLRPC(lineOfCode));
-    //     });
-    //     return translatedCode;
-    // } catch (error) {
-    //     return "ERROR";
-    // }
-
         let translatedCode = [];
         let lineOfCode = "";
         for (let index = 0; index < decompiledCodeSeparatedByLines.length; index++) {
             lineOfCode = await sendSimpleXMLRPC(decompiledCodeSeparatedByLines[index]);
-            translatedCode.push(lineOfCode);
-            console.log(translatedCode);
+            translatedCode.push(lineOfCode.text);
         }
         return translatedCode;
 
@@ -313,11 +294,20 @@ function deleteTabSpaces(code){
 
 
 function concatenateTranslatedLines(translatedCode){
-    return translateCode.join(' ');
+    let processedCode = translatedCode.join(' ');
+    return processedCode;
 }
 
 
-
+function separateCodeInLinesByWords(arrayOfLines){
+    console.log("ARRAY IN LINES: \n",arrayOfLines)
+    let processedCode = arrayOfLines.join(' ');
+    console.log("++++++++++++ code in string: \n",processedCode)
+    processedCode = processedCode.trim();
+    processedCode = processedCode.split(' ');
+    processedCode = deleteWhitespacesFromArray(processedCode)
+    return processedCode;
+}
 
 
 module.exports = router
