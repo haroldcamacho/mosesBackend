@@ -31,8 +31,7 @@ router.post('/', async(req, res)=>{
     let translation = req.translation;
     let inputCode = req.body.inputCode;
     translation.textToTranslate = inputCode;
-    let translatedCode = translateCode(inputCode);
-    console.log(translatedCode);
+    let translatedCode = await translateCode(inputCode);
     translation.translatedText =  translatedCode;
 
     try {
@@ -44,72 +43,17 @@ router.post('/', async(req, res)=>{
         res.redirect(`/error`)
     }
     
-    //let originalCode = req.body.inputCode;
-
-
-    //translateCode(originalCode);
-
-    //--------------------------
-    // let processedInputCode = processInputCode(originalCode);
-
-    // let processedInputMap = mapDecompiledCodeVariablesWithPositions(processedInputCode);
-
-    // let testArray = ["withExtension:","extension","|","basename","name","|","basename",":=","self", "basename.","^","(basename","endsWith:",
-    // "extension)","ifTrue:","[","self","]","ifFalse:","[","name", ":=", "basename",
-    // "copyUpToLast:","self","extensionDelimiter.","self","withName:","name","extension:","extension","]"];
-
-    // let result = renameDecompiledCode(processedInputMap, testArray, processedInputCode);
-    
-
-    //console.log(result[0]);
-    //console.log(result.join(' '));
-    //------------------------------
-
-    //TO DO
-    //console.log(processedInputCode);
-    //processInputCodeForMoses(originalCode);
-
-    // let codeByLine = processInputCodeForMoses(originalCode);
-    // let lineBreaksPositions = mapLineBreaks(codeByLine);
-    // let newCode = addLineBreaksToTranslatedCode(lineBreaksPositions, result);
-    // newCode = newCode.join(''),
-    // console.log("THE NEW CODE IS: \n", newCode);
-
-    //XMLRPC FRENCK
-
-    // let frenchArrayInput = processInputCodeForMoses(originalCode);
-    // console.log("FRENCH INPUT-----------", frenchArrayInput);
-
-    // let french = "faire revenir les militants sur le terrain et convaincre que le vote est utile.";
-    // let frenchArray = ["faire revenir les militants sur le terrain et convaincre que le vote est utile.","après ajustement à l ’ inflation"];
-    // let arrayTranslated = await sendLineByLineToMoses(frenchArrayInput);
-    // //arrayTranslated = arrayTranslated.map(el => el.trim());
-    // let separatedByWords = separateCodeInLinesByWords(arrayTranslated);
-    // console.log("CODE SEPARATED  BY WORDS////////",separatedByWords);
-    // let lineBreaksPosition = mapLineBreaks(arrayTranslated);
-    // let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPosition, separatedByWords)
-    // console.log("ARRAY WITH LINEBREAKS\n", repositionedCode);
-    // repositionedCode = repositionedCode.join(' ');
-    // console.log("REP CODE IS: \n", repositionedCode);
-    
-
-    // let textPromise = await (sendSimpleXMLRPC(french));
-    // console.log(JSON.stringify(textPromise.text));
-
-
-
-
 })
 
-function translateCode(originalCode){
+async function translateCode(originalCode){
     let processedInputCode = processInputCode(originalCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
 
-    //let translatedCodeByLines = sendLineByLineToMoses(inputCodeSeparatedByLines);
+    let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
 
-    let translatedCodeSeparatedByLines = ["withExtension: extension","| basename name |","basename := self basename.","^ (basename endsWith: extension)",
-    "ifTrue: [ self ]","ifFalse: [ name := basename copyUpToLast: self extensionDelimiter.","self withName: name extension: extension ]"]
+    // let translatedCodeSeparatedByLines = ["withExtension: extension","| basename name |","basename := self basename.","^ (basename endsWith: extension)",
+    // "ifTrue: [ self ]","ifFalse: [ name := basename copyUpToLast: self extensionDelimiter.","self withName: name extension: extension ]"]
     let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
