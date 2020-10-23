@@ -15,11 +15,9 @@ db.once('open', () => console.log('Connected to Database'));
 
 //APP SETUP
 app.set('view engine', 'ejs');
-//app.use(express.urlencoded({ extended: true }))
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.use(bodyParser.json()); // support json encoded bodies
 
-// app.use(methodOverride('_method'))
 
 //ROUTES
 

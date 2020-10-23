@@ -9,6 +9,7 @@ const format = "xml";
 const { rejects } = require('assert');
 const { type } = require('os');
 const { nextTick } = require('process');
+const translation = require('../models/translation');
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
 
@@ -44,20 +45,16 @@ router.post('/', async(req, res)=>{
 })
 
 router.post('/translate', async(req, res)=>{
-    // const Translation = new Translation({
-    //     textToTranslate: req.body.name,
-    //     subscribedToChannel: req.body.subscribedToChannel
-    //   })
-    //   try {
-    //     const newSubscriber = await subscriber.save()
-    //     res.status(201).json(newSubscriber)
-    //   } catch (err) {
-    //     res.status(400).json({ message: err.message })
-    //   }
-    const datos = req.body;
-    console.log("DATA ARRIVED: ",datos);
-    res.send("LOL");
-    
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: await translateCode(req.body.inputCode)
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).json(newTranslation)
+      } catch (err) {
+        res.status(400).json({ message: err.message })
+      } 
 })
 
 async function translateCode(originalCode){
@@ -67,12 +64,26 @@ async function translateCode(originalCode){
 
     let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
 
+
     let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
+
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
+    console.log("CODE SEPARATED BY WORDS\n",translatedCodeSeparatedByWords);
+
+
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
+
+    console.log("RENAMED CODE\n",renamedCode);
+
+
     let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPositions, renamedCode)
+
+    console.log("REPOSITIONED CODE\n",repositionedCode);
+
+    
     repositionedCode = repositionedCode.join(' ');
 
+    console.log("AEAAAAAAAAAAAAAAAAAAAA\n",repositionedCode);
     return repositionedCode;
 
 }
@@ -103,8 +114,10 @@ function processInputCode(inputCode){
 
 function mapLineBreaks(inputCode){
     let lineBreaksPosition = [];
+    let codeWithoutSpaces;
     inputCode.forEach(element => {
-        lineBreaksPosition.push(element.split(' ').length);
+        codeWithoutSpaces = element.trim();
+        lineBreaksPosition.push(codeWithoutSpaces.split(' ').length);
     });
     return lineBreaksPosition;
 }
