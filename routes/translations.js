@@ -26,7 +26,6 @@ router.get('/', async(req,res) =>{
 //Make a translation
 router.post('/', async(req, res)=>{
     req.translation = new Translation();
-
     let translation = req.translation;
     let inputCode = req.body.inputCode;
     translation.textToTranslate = inputCode;
@@ -41,6 +40,23 @@ router.post('/', async(req, res)=>{
         console.log(error);
         res.redirect(`/error`)
     }
+    
+})
+
+router.post('/translate', async(req, res)=>{
+    // const Translation = new Translation({
+    //     textToTranslate: req.body.name,
+    //     subscribedToChannel: req.body.subscribedToChannel
+    //   })
+    //   try {
+    //     const newSubscriber = await subscriber.save()
+    //     res.status(201).json(newSubscriber)
+    //   } catch (err) {
+    //     res.status(400).json({ message: err.message })
+    //   }
+    const datos = req.body;
+    console.log("DATA ARRIVED: ",datos);
+    res.send("LOL");
     
 })
 
