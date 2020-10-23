@@ -23,7 +23,6 @@ router.get('/', async(req,res) =>{
     }
 })
 
-
 //Make a translation
 router.post('/', async(req, res)=>{
     req.translation = new Translation();
@@ -52,8 +51,6 @@ async function translateCode(originalCode){
 
     let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
 
-    // let translatedCodeSeparatedByLines = ["withExtension: extension","| basename name |","basename := self basename.","^ (basename endsWith: extension)",
-    // "ifTrue: [ self ]","ifFalse: [ name := basename copyUpToLast: self extensionDelimiter.","self withName: name extension: extension ]"]
     let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
@@ -64,22 +61,6 @@ async function translateCode(originalCode){
 
 }
 
-function saveTranslationAndRedirect(path){
-    return async (req, res) =>{
-        let translation = req.translation;
-        let inputCode = req.body.inputCode;
-        translation.textToTranslate = inputCode;
-        translation.translatedText =  translateCode(inputCode);
-        console.log("LOGGER");
-
-        try {
-            translation = await translation.save();
-            res.redirect(`/translations`)
-        } catch (error) {
-            res.redirect(`/error`)
-        }
-    }     
-}
 
 function addLineBreaksToTranslatedCode(lineBreaksMap, codeSeparatedByWords){
     let codeJoinedByLines = [];
