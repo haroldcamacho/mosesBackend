@@ -66,9 +66,9 @@ router.post('/translate', async(req, res)=>{
       })
       try {
         const newTranslation = await translation.save()
-        res.status(201).json(newTranslation)
+        res.status(201).send(newTranslation);
       } catch (err) {
-        res.status(400).json({ message: err.message })
+        res.status(400).send({ message: err.message })
       } 
 })
 
