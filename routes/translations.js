@@ -60,13 +60,14 @@ router.post('/translatejson', async(req, res)=>{
 
 
 router.post('/translate', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
-        translatedText: await translateCodeWithouthLinebreaks(req.body.inputCode)
+        translatedText: translatedCode
       })
       try {
         const newTranslation = await translation.save()
-        res.status(201).send(newTranslation.translatedText);
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
       } 
@@ -92,7 +93,8 @@ async function translateCodeWithouthLinebreaks(originalCode){
     let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
-    renamedCode = renamedCode.join(' ');
+    renamedCode = renamedCode.join(" ");
+    console.log(JSON.stringify(renamedCode));
     return renamedCode;
 }
 
