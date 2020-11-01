@@ -57,6 +57,37 @@ router.post('/translate', async(req, res)=>{
       } 
 })
 
+async function translateCodeWithouthLinebreaks(originalCode){
+    let processedInputCode = processInputCode(originalCode);
+    let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
+    let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
+
+    let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
+
+
+    let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
+
+    let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
+    console.log("CODE SEPARATED BY WORDS\n",translatedCodeSeparatedByWords);
+
+
+    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
+
+    console.log("RENAMED CODE\n",renamedCode);
+
+
+    let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPositions, renamedCode)
+
+    console.log("REPOSITIONED CODE\n",repositionedCode);
+
+    
+    repositionedCode = repositionedCode.join(' ');
+
+    console.log("AEAAAAAAAAAAAAAAAAAAAA\n",repositionedCode);
+    return repositionedCode;
+
+}
+
 async function translateCode(originalCode){
     let processedInputCode = processInputCode(originalCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
