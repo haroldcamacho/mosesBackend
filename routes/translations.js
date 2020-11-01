@@ -44,10 +44,38 @@ router.post('/', async(req, res)=>{
     
 })
 
-router.post('/translate', async(req, res)=>{
+
+router.post('/translatejson', async(req, res)=>{
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
         translatedText: await translateCode(req.body.inputCode)
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).json(newTranslation)
+      } catch (err) {
+        res.status(400).json({ message: err.message })
+      } 
+})
+
+
+router.post('/translate', async(req, res)=>{
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: await translateCodeWithouthLinebreaks(req.body.inputCode)
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).json(newTranslation)
+      } catch (err) {
+        res.status(400).json({ message: err.message })
+      } 
+})
+
+router.post('/translatenolbjson', async(req, res)=>{
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: await translateCodeWithouthLinebreaks(req.body.inputCode)
       })
       try {
         const newTranslation = await translation.save()
@@ -61,31 +89,11 @@ async function translateCodeWithouthLinebreaks(originalCode){
     let processedInputCode = processInputCode(originalCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
-
     let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
-
-
-    let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
-
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
-    console.log("CODE SEPARATED BY WORDS\n",translatedCodeSeparatedByWords);
-
-
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
-
-    console.log("RENAMED CODE\n",renamedCode);
-
-
-    let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPositions, renamedCode)
-
-    console.log("REPOSITIONED CODE\n",repositionedCode);
-
-    
-    repositionedCode = repositionedCode.join(' ');
-
-    console.log("AEAAAAAAAAAAAAAAAAAAAA\n",repositionedCode);
-    return repositionedCode;
-
+    renamedCode = renamedCode.join(' ');
+    return renamedCode;
 }
 
 async function translateCode(originalCode){
@@ -99,22 +107,18 @@ async function translateCode(originalCode){
     let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
 
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
-    console.log("CODE SEPARATED BY WORDS\n",translatedCodeSeparatedByWords);
 
 
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
 
-    console.log("RENAMED CODE\n",renamedCode);
 
 
     let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPositions, renamedCode)
 
-    console.log("REPOSITIONED CODE\n",repositionedCode);
 
     
     repositionedCode = repositionedCode.join(' ');
 
-    console.log("AEAAAAAAAAAAAAAAAAAAAA\n",repositionedCode);
     return repositionedCode;
 
 }
