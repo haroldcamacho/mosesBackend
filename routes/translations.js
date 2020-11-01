@@ -94,7 +94,6 @@ async function translateCodeWithouthLinebreaks(originalCode){
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
     renamedCode = renamedCode.join(" ");
-    console.log(JSON.stringify(renamedCode));
     return renamedCode;
 }
 
