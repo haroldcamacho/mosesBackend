@@ -86,14 +86,40 @@ router.post('/translatenolbjson', async(req, res)=>{
       } 
 })
 
+// async function translateCodeWithouthLinebreaks(originalCode){
+//     //console.log("ORGINAL CODE\n", originalCode)
+//     let renamedCode;
+//     let processedInputCode = processInputCode(originalCode);
+//     console.log("PROCESSED INPUT CODE\n", processedInputCode);
+//     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
+//     console.log("CODE DIVIDED BY LINES OG \n",inputCodeSeparatedByLines);
+//     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
+//     console.log("MAP LENGTH\n", mapOfVariablesToRename.size);
+//     if(mapOfVariablesToRename.size>0){
+//         console.log("VARIABLES TO RENAME\n", mapOfVariablesToRename);
+//         let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
+//         console.log("PROCESSED CODE BY MOSES\n", translatedCodeSeparatedByLines);
+//         let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
+//         console.log("TRANSLATED CODE SEPARATED BY WORDS\n", translatedCodeSeparatedByWords);
+//         console.log("NUMBER OF WORDS OG CODE\n", processedInputCode.length);
+//         console.log("NUMBER OF WORDS TRANSLATED CODE\n", translatedCodeSeparatedByWords.length);
+//         //renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
+//         //renamedCode = renamedCode.join(" ");
+//     }
+//     else{
+//         renamedCode = originalCode;
+//     }
+
+
+//     return "placeholder";
+//     //return renamedCode;
+// }
+
 async function translateCodeWithouthLinebreaks(originalCode){
-    let processedInputCode = processInputCode(originalCode);
+    let renamedCode;
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
-    let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
     let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
-    let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
-    let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
-    renamedCode = renamedCode.join(" ");
+    renamedCode = translatedCodeSeparatedByLines.join(" ");
     return renamedCode;
 }
 
@@ -224,7 +250,6 @@ async function sendLineByLineToMoses(decompiledCodeSeparatedByLines){
             translatedCode.push(lineOfCode.text);
         }
         return translatedCode;
-
 }
 
 async function sendSimpleXMLRPC(textToTranslate){
