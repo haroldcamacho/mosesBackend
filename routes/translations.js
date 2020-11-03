@@ -4,7 +4,6 @@ const router = express.Router()
 const validator = require('express-validator')
 const xmlrpc = require ("davexmlrpc");
 const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
-const glamourEndpointXMLRPC = "http://localhost:8070/RPC2";
 const verb = "translate";
 const format = "xml";
 const { rejects } = require('assert');
@@ -61,21 +60,7 @@ router.post('/translatejson', async(req, res)=>{
 
 
 router.post('/translate', async(req, res)=>{
-    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, urlEndpointXMLRPC);
-    const translation = new Translation({
-        textToTranslate: req.body.inputCode,
-        translatedText: translatedCode
-      })
-      try {
-        const newTranslation = await translation.save()
-        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
-      } catch (err) {
-        res.status(400).send({ message: err.message })
-      } 
-})
-
-router.post('/glamour', async(req, res)=>{
-    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, glamourEndpointXMLRPC);
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
         translatedText: translatedCode
@@ -91,7 +76,7 @@ router.post('/glamour', async(req, res)=>{
 router.post('/translatenolbjson', async(req, res)=>{
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
-        translatedText: await translateCodeWithouthLinebreaks(req.body.inputCode, urlEndpointXMLRPC)
+        translatedText: await translateCodeWithouthLinebreaks(req.body.inputCode)
       })
       try {
         const newTranslation = await translation.save()
@@ -130,10 +115,10 @@ router.post('/translatenolbjson', async(req, res)=>{
 //     //return renamedCode;
 // }
 
-async function translateCodeWithouthLinebreaks(originalCode, port){
+async function translateCodeWithouthLinebreaks(originalCode){
     let renamedCode;
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
-    let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines, port);
+    let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
     renamedCode = translatedCodeSeparatedByLines.join(" ");
     return renamedCode;
 }
@@ -143,7 +128,7 @@ async function translateCode(originalCode){
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
 
-    let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines, urlEndpointXMLRPC);
+    let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
 
 
     let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
@@ -257,20 +242,20 @@ function renameOnDecompiledCode(decompiledCode, variablePositions, newVariableNa
 
 
 //MOSES SERVER XMLRPC
-async function sendLineByLineToMoses(decompiledCodeSeparatedByLines, port){
+async function sendLineByLineToMoses(decompiledCodeSeparatedByLines){
         let translatedCode = [];
         let lineOfCode = "";
         for (let index = 0; index < decompiledCodeSeparatedByLines.length; index++) {
-            lineOfCode = await sendSimpleXMLRPC(decompiledCodeSeparatedByLines[index], port);
+            lineOfCode = await sendSimpleXMLRPC(decompiledCodeSeparatedByLines[index]);
             translatedCode.push(lineOfCode.text);
         }
         return translatedCode;
 }
 
-async function sendSimpleXMLRPC(textToTranslate, urlEndpoint){
+async function sendSimpleXMLRPC(textToTranslate){
     let requestObject = [{"text": textToTranslate, "align":"false", "report-all-factors":"false"}];
     return new Promise((resolve, reject) =>{
-        xmlrpc.client (urlEndpoint, verb, requestObject, format, async function(err, data) {
+        xmlrpc.client (urlEndpointXMLRPC, verb, requestObject, format, async function(err, data) {
             if (err) {
                 reject(err);
                 }
