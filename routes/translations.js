@@ -1,16 +1,23 @@
 const express = require('express')
 const Translation = require('../models/translation')
 const router = express.Router()
-const validator = require('express-validator')
 const xmlrpc = require ("davexmlrpc");
-const urlEndpointXMLRPC = "http://localhost:8080/RPC2";
-const glamourEndpointXMLRPC = "http://localhost:8070/RPC2";
+const urlEndpointXMLRPC = "http://localhost:8090/RPC2";
+const CalypsoEndpointXMLRPC = "http://localhost:8080/RPC2";
+const FuelEndpointXMLRPC = "http://localhost:8070/RPC2";
+const GlamourEndpointXMLRPC = "http://localhost:8060/RPC2";
+const GTEndpointXMLRPC = "http://localhost:8050/RPC2";
+const IcebergEndpointXMLRPC = "http://localhost:8040/RPC2";
+const KernelEndpointXMLRPC = "http://localhost:8030/RPC2";
+const MetacelloEndpointXMLRPC = "http://localhost:8020/RPC2";
+const MorphicEndpointXMLRPC = "http://localhost:8010/RPC2";
+const RefactoringEndpointXMLRPC = "http://localhost:8000/RPC2";
+const SeasideEndpointXMLRPC = "http://localhost:7090/RPC2";
+const Spec2EndpointXMLRPC = "http://localhost:7080/RPC2";
+
+
 const verb = "translate";
 const format = "xml";
-const { rejects } = require('assert');
-const { type } = require('os');
-const { nextTick } = require('process');
-const translation = require('../models/translation');
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
 
@@ -45,21 +52,6 @@ router.post('/', async(req, res)=>{
     
 })
 
-
-router.post('/translatejson', async(req, res)=>{
-    const translation = new Translation({
-        textToTranslate: req.body.inputCode,
-        translatedText: await translateCode(req.body.inputCode)
-      })
-      try {
-        const newTranslation = await translation.save()
-        res.status(201).json(newTranslation)
-      } catch (err) {
-        res.status(400).json({ message: err.message })
-      } 
-})
-
-
 router.post('/translate', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, urlEndpointXMLRPC);
     const translation = new Translation({
@@ -75,7 +67,7 @@ router.post('/translate', async(req, res)=>{
 })
 
 router.post('/glamour', async(req, res)=>{
-    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, glamourEndpointXMLRPC);
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, GlamourEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
         translatedText: translatedCode
@@ -88,16 +80,146 @@ router.post('/glamour', async(req, res)=>{
       } 
 })
 
-router.post('/translatenolbjson', async(req, res)=>{
+//Calypso
+router.post('/calypso', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, CalypsoEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
-        translatedText: await translateCodeWithouthLinebreaks(req.body.inputCode, urlEndpointXMLRPC)
+        translatedText: translatedCode
       })
       try {
         const newTranslation = await translation.save()
-        res.status(201).json(newTranslation)
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
-        res.status(400).json({ message: err.message })
+        res.status(400).send({ message: err.message })
+      } 
+})
+//Fuel
+router.post('/fuel', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, FuelEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+//GT
+router.post('/gt', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, GTEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+//Iceberg
+router.post('/iceberg', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, IcebergEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+//Kernel
+router.post('/kernel', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, KernelEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+
+//Metacello
+router.post('/metacello', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, MetacelloEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+
+//Morphic
+router.post('/morphic', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, MorphicEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+//Refactoring
+router.post('/refactoring', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, RefactoringEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+//Seaside
+router.post('/seaside', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, SeasideEndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
+      } 
+})
+//Spec2
+router.post('/spec2', async(req, res)=>{
+    const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, Spec2EndpointXMLRPC);
+    const translation = new Translation({
+        textToTranslate: req.body.inputCode,
+        translatedText: translatedCode
+      })
+      try {
+        const newTranslation = await translation.save()
+        res.status(201).set('Content-Type', 'text/html').send(translatedCode);
+      } catch (err) {
+        res.status(400).send({ message: err.message })
       } 
 })
 
