@@ -287,7 +287,6 @@ async function queryLanguageModel(lineOfText, languageModelPath){
       //console.log(`stdout: ${stdout}`);
       resolve(stdout);
     }
-    
     });
   });
 }

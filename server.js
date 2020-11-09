@@ -2,7 +2,8 @@ require('dotenv').config()
 const PORT = process.env.PORT || 3000;
 const express = require('express');
 const mongoose = require('mongoose');
-const translationsRouter =  require('./routes/translations')
+const translationsRouter =  require('./routes/translations');
+const languageModelsRouter = require('./routes/languagemodels');
 const methodOverride = require('method-override')
 const app = express();
 const bodyParser = require('body-parser');
@@ -28,6 +29,7 @@ app.get('/', async(req, res) => {
 });
 
 app.use('/translations', translationsRouter);
+app.use('/languagemodels', languageModelsRouter);
 
 //HANDLE INVALID ROUTES
 app.get('*', (req, res) => { 
