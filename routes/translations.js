@@ -3,6 +3,7 @@ const Translation = require('../models/translation')
 const router = express.Router()
 const xmlrpc = require ("davexmlrpc");
 const { exec } = require("child_process");
+const { on } = require('process');
 
 
 const urlEndpointXMLRPC = "http://localhost:8090/RPC2";
@@ -24,6 +25,7 @@ const format = "xml";
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
 const logProbabilityRegExp = /Total: [-.0-9]+/g;
+const onlyNumberRegExp = /[-.0-9]+/g
 //GetTranslations
 
 router.get('/', async(req,res) =>{
@@ -40,8 +42,16 @@ router.post('/align', async(req, res)=>{
   req.translation = new Translation();
   let translation = req.translation;
   let inputCode = req.body.inputCode;
-  let aux = await queryLanguageModel(inputCode, '/root/lmPharo/pharo.dec-ori.blm.ori')
-  console.log(aux);
+  let result = await calculateAverageScore(inputCode,'/root/lmPharo/pharo.dec-ori.blm.ori');
+  console.log("RESULT: ", result);
+  
+  // let aux = await queryLanguageModel(inputCode, '/root/lmPharo/pharo.dec-ori.blm.ori')
+  // let score = aux.match(logProbabilityRegExp);
+  // console.log("SCORE: ", score);
+  // let onlyNumber = score[0].match(onlyNumberRegExp);
+  // console.log("ONLY NUMBER: ", onlyNumber[0]);
+  // let converted = parseFloat(onlyNumber[0]);
+  // console.log("CONVERTED: ", converted);
   res.send(`received`)
 })
 
@@ -270,16 +280,47 @@ async function queryLanguageModel(lineOfText, languageModelPath){
   return new Promise((resolve, reject) => {
     exec(shellCommand, (error, stdout, stderr) => {
     if (error) {
-        console.log(`error: ${error.message}`);
+        //console.log(`error: ${error.message}`);
         reject(err)
     }
     else{
-      console.log(`stdout: ${stdout}`);
+      //console.log(`stdout: ${stdout}`);
       resolve(stdout);
     }
     
     });
   });
+}
+
+async function sendLineByLineToLanguageModel(codeSeparatedByLines, pathToLM) {
+  let logProbabilities = [];
+  for (let index = 0; index < codeSeparatedByLines.length; index++) {
+    const lineOfCode = codeSeparatedByLines[index];
+    const languageModelResult = await queryLanguageModel(lineOfCode, pathToLM);
+    const score = calculateScoreFromResult(languageModelResult);
+    logProbabilities.push(score);
+  }
+  return logProbabilities;
+}
+
+function calculateScoreFromResult(lmResult){
+  let score = lmResult.match(logProbabilityRegExp);
+  let onlyNumber = score[0].match(onlyNumberRegExp);
+  let convertedToNumber = parseFloat(onlyNumber[0]);
+  return convertedToNumber;
+}
+
+
+async function calculateAverageScore(inputCode, pathToLM) {
+  let inputCodeSeparatedByLines = processInputCodeForMoses(inputCode);
+  let scoresArray = await sendLineByLineToLanguageModel(inputCodeSeparatedByLines, pathToLM);
+  let scoresTotal = 0;
+  for (let index = 0; index < scoresArray.length; index++) {
+    const element = scoresArray[index];
+    scoresTotal += element;
+  }
+  const scoresAverage = (scoresTotal/(scoresArray.length));
+  return scoresAverage;
 }
 
 async function translateCodeWithouthLinebreaks(originalCode, port){
@@ -294,27 +335,13 @@ async function translateCode(originalCode){
     let processedInputCode = processInputCode(originalCode);
     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
-
     let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines, urlEndpointXMLRPC);
-
-
     let lineBreaksPositions = mapLineBreaks(translatedCodeSeparatedByLines);
-
     let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
-
-
     let renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
-
-
-
     let repositionedCode = addLineBreaksToTranslatedCode(lineBreaksPositions, renamedCode)
-
-
-    
     repositionedCode = repositionedCode.join(' ');
-
     return repositionedCode;
-
 }
 
 
