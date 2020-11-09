@@ -2,6 +2,9 @@ const express = require('express')
 const Translation = require('../models/translation')
 const router = express.Router()
 const xmlrpc = require ("davexmlrpc");
+const { exec } = require("child_process");
+
+
 const urlEndpointXMLRPC = "http://localhost:8090/RPC2";
 const CalypsoEndpointXMLRPC = "http://localhost:8080/RPC2";
 const FuelEndpointXMLRPC = "http://localhost:8070/RPC2";
@@ -20,7 +23,7 @@ const verb = "translate";
 const format = "xml";
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
-
+const logProbabilityRegExp = /Total: [-.0-9]+/g;
 //GetTranslations
 
 router.get('/', async(req,res) =>{
@@ -30,6 +33,15 @@ router.get('/', async(req,res) =>{
     } catch(err){
         res.status(500).json({message: err.message})
     }
+})
+
+//Make a translation
+router.post('/align', async(req, res)=>{
+  req.translation = new Translation();
+  let translation = req.translation;
+  let inputCode = req.body.inputCode;
+  queryLanguageModel(inputCode, '/root/lmPharo/pharo.dec-ori.blm.ori')
+  res.send(`received`)
 })
 
 //Make a translation
@@ -251,6 +263,19 @@ router.post('/spec2', async(req, res)=>{
 //     return "placeholder";
 //     //return renamedCode;
 // }
+
+async function queryLanguageModel(lineOfText, languageModelPath){
+  let shellCommand = "echo "+lineOfText+' \\ | /root/mosesdecoder/bin/query '+ languageModelPath;
+  console.log(shellCommand);
+  //exec('echo handlerContext restartWithNewReceiver: arg1 \ | /root/mosesdecoder/bin/query /root/lmPharo/pharo.dec-ori.blm.ori', (error, stdout, stderr) => {
+  exec(shellCommand, (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+    }
+    console.log(`stdout: ${stdout}`);
+});
+}
 
 async function translateCodeWithouthLinebreaks(originalCode, port){
     let renamedCode;
