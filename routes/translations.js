@@ -38,24 +38,6 @@ router.get('/', async(req,res) =>{
 })
 
 //Make a translation
-router.post('/align', async(req, res)=>{
-  req.translation = new Translation();
-  let translation = req.translation;
-  let inputCode = req.body.inputCode;
-  let result = await calculateAverageScore(inputCode,'/root/lmPharo/pharo.dec-ori.blm.ori');
-  console.log("RESULT: ", result);
-  
-  // let aux = await queryLanguageModel(inputCode, '/root/lmPharo/pharo.dec-ori.blm.ori')
-  // let score = aux.match(logProbabilityRegExp);
-  // console.log("SCORE: ", score);
-  // let onlyNumber = score[0].match(onlyNumberRegExp);
-  // console.log("ONLY NUMBER: ", onlyNumber[0]);
-  // let converted = parseFloat(onlyNumber[0]);
-  // console.log("CONVERTED: ", converted);
-  res.send(`received`)
-})
-
-//Make a translation
 router.post('/', async(req, res)=>{
     req.translation = new Translation();
     let translation = req.translation;

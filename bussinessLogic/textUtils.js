@@ -31,10 +31,6 @@ exports.processInputCodeForMoses = (inputCode) => {
     return processedCode;
 }
 
-const deleteTabSpaces = (code) =>{
-    return code = code.replace(/\t/g, '');
-}
-
 
 exports.separateBySpaceCharacter = (code) =>{
     return code.split(' ');
@@ -44,9 +40,6 @@ exports.deleteLineBreaksFromText = (code) =>{
     return code.replace(/\r\n|\r|\n/gm, ' ');
 }
 
-const divideCodeByLines = (code) => {
-    return code.trim().split(/\r\n|\r|\n/g);
-}
 
 exports.deleteWhitespacesFromArray = (code) =>{
     return code.filter(item => item.trim() !== '');
@@ -58,4 +51,12 @@ exports.isVariableToRename = (code) => {
 
 function deleteSpecialCharactersFromVariables(code){
     return (code.replace(specialCharactersRegex,''));
+}
+
+const deleteTabSpaces = (code) =>{
+    return code = code.replace(/\t/g, '');
+}
+
+const divideCodeByLines = (code) => {
+    return code.trim().split(/\r\n|\r|\n/g);
 }
