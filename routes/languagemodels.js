@@ -110,7 +110,7 @@ async function sendLineByLineToLanguageModel(codeSeparatedByLines, pathToLM) {
   }
 
 async function queryLanguageModel(lineOfText, languageModelPath){
-let shellCommand = "echo "+lineOfText+" \\ | /root/mosesdecoder/bin/query "+ languageModelPath;
+let shellCommand = 'echo '+'"'+lineOfText+'"'+' \\ | /root/mosesdecoder/bin/query '+ languageModelPath;
 return new Promise((resolve, reject) => {
     exec(shellCommand, (error, stdout, stderr) => {
     if (error) {
@@ -118,7 +118,7 @@ return new Promise((resolve, reject) => {
         reject(err)
     }
     else{
-    //console.log(`stdout: ${stdout}`);
+        //console.log(`stdout: ${stdout}`);
     resolve(stdout);
     }
     });
