@@ -40,7 +40,8 @@ router.post('/align', async(req, res)=>{
   req.translation = new Translation();
   let translation = req.translation;
   let inputCode = req.body.inputCode;
-  queryLanguageModel(inputCode, '/root/lmPharo/pharo.dec-ori.blm.ori')
+  let aux = await queryLanguageModel(inputCode, '/root/lmPharo/pharo.dec-ori.blm.ori')
+  console.log(aux);
   res.send(`received`)
 })
 
@@ -265,16 +266,20 @@ router.post('/spec2', async(req, res)=>{
 // }
 
 async function queryLanguageModel(lineOfText, languageModelPath){
-  let shellCommand = "echo "+lineOfText+' \\ | /root/mosesdecoder/bin/query '+ languageModelPath;
-  console.log(shellCommand);
-  //exec('echo handlerContext restartWithNewReceiver: arg1 \ | /root/mosesdecoder/bin/query /root/lmPharo/pharo.dec-ori.blm.ori', (error, stdout, stderr) => {
-  exec(shellCommand, (error, stdout, stderr) => {
+  let shellCommand = "echo "+lineOfText+" \\ | /root/mosesdecoder/bin/query "+ languageModelPath;
+  return new Promise((resolve, reject) => {
+    exec(shellCommand, (error, stdout, stderr) => {
     if (error) {
         console.log(`error: ${error.message}`);
-        return;
+        reject(err)
     }
-    console.log(`stdout: ${stdout}`);
-});
+    else{
+      console.log(`stdout: ${stdout}`);
+      resolve(stdout);
+    }
+    
+    });
+  });
 }
 
 async function translateCodeWithouthLinebreaks(originalCode, port){
