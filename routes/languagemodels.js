@@ -87,6 +87,7 @@ return convertedToNumber;
 
 async function calculateAverageScore(inputCode, pathToLM) {
 let inputCodeSeparatedByLines = TextUtils.processInputCodeForMoses(inputCode);
+console.log(inputCodeSeparatedByLines);
 let scoresArray = await sendLineByLineToLanguageModel(inputCodeSeparatedByLines, pathToLM);
 let scoresTotal = 0;
 for (let index = 0; index < scoresArray.length; index++) {

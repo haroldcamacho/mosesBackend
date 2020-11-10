@@ -1,5 +1,6 @@
 const specialCharactersRegex = /[^0-9a-zA-Z]/g;
 const variablesRegExp = /\barg[0-9]\b|\btmp[0-9]\b/;
+const extraSpaceRegExp = /  +/g;
 
 exports.storeVariablesInDictionary = (map, key, value) => {
     key = deleteSpecialCharactersFromVariables(key);
@@ -27,8 +28,9 @@ exports.separateCodeInLinesByWords = (arrayOfLines) => {
 
 exports.processInputCodeForMoses = (inputCode) => {
     let processedCode = deleteTabSpaces(inputCode);
-    processedCode = divideCodeByLines(processedCode);    
-    return processedCode;
+    processedCode = divideCodeByLines(processedCode);  
+    const cleanedCode = deleteExtraSpacesFromCodeArray(processedCode);  
+    return cleanedCode;
 }
 
 
@@ -55,6 +57,21 @@ function deleteSpecialCharactersFromVariables(code){
 
 const deleteTabSpaces = (code) =>{
     return code = code.replace(/\t/g, '');
+}
+
+const deleteExtraSpaceCharacterFromString = (code) =>{
+    const cleanedCode = code.replace(extraSpaceRegExp, ' ');
+    return cleanedCode;
+}
+
+const deleteExtraSpacesFromCodeArray = (codeArray) => {
+    let cleanedCodeArray = [];
+    for (let index = 0; index < codeArray.length; index++) {
+        let element = codeArray[index];
+        element = deleteExtraSpaceCharacterFromString(element);
+        cleanedCodeArray.push(element);
+    }
+    return cleanedCodeArray;
 }
 
 const divideCodeByLines = (code) => {
