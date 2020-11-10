@@ -16,6 +16,8 @@ const KernelLanguageModel = process.env.KERNEL_LM;
 const MorphicLanguageModel = process.env.MORPHIC_LM;
 const RefactoringLanguageModel = process.env.REFACTORING_LM;
 const GTLanguageModel = process.env.GT_LM;
+const MetacelloLanguageModel = process.env.METACELLO_LM;
+const SeaSideLanguageModel = process.env.SEASIDE_LM;
 
 router.post('/pharo', async(req, res)=>{
     let inputCode = req.body.inputCode;
@@ -77,6 +79,18 @@ router.post('/gt', async(req, res)=>{
     res.status(200).send(JSON.stringify(result));
 })
 
+router.post('/metacello', async(req, res)=>{
+    let inputCode = req.body.inputCode;
+    let result = await calculateAverageScore(inputCode, MetacelloLanguageModel);
+    res.status(200).send(JSON.stringify(result));
+})
+
+router.post('/seaside', async(req, res)=>{
+    let inputCode = req.body.inputCode;
+    let result = await calculateAverageScore(inputCode, SeaSideLanguageModel);
+    res.status(200).send(JSON.stringify(result));
+})
+
 function calculateScoreFromResult(lmResult){
 let score = lmResult.match(logProbabilityRegExp);
 let onlyNumber = score[0].match(onlyNumberRegExp);
@@ -87,7 +101,6 @@ return convertedToNumber;
 
 async function calculateAverageScore(inputCode, pathToLM) {
 let inputCodeSeparatedByLines = TextUtils.processInputCodeForMoses(inputCode);
-console.log(inputCodeSeparatedByLines);
 let scoresArray = await sendLineByLineToLanguageModel(inputCodeSeparatedByLines, pathToLM);
 let scoresTotal = 0;
 for (let index = 0; index < scoresArray.length; index++) {
@@ -116,7 +129,7 @@ return new Promise((resolve, reject) => {
     exec(shellCommand, (error, stdout, stderr) => {
     if (error) {
         //console.log(`error: ${error.message}`);
-        reject(err)
+        reject(error)
     }
     else{
         //console.log(`stdout: ${stdout}`);
