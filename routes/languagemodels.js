@@ -18,6 +18,7 @@ const RefactoringLanguageModel = process.env.REFACTORING_LM;
 const GTLanguageModel = process.env.GT_LM;
 const MetacelloLanguageModel = process.env.METACELLO_LM;
 const SeaSideLanguageModel = process.env.SEASIDE_LM;
+const RoassalLanguageModel = process.env.ROASSAL_LM;
 
 router.post('/pharo', async(req, res)=>{
     let inputCode = req.body.inputCode;
@@ -88,6 +89,12 @@ router.post('/metacello', async(req, res)=>{
 router.post('/seaside', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, SeaSideLanguageModel);
+    res.status(200).send(JSON.stringify(result));
+})
+
+router.post('/roassal', async(req, res)=>{
+    let inputCode = req.body.inputCode;
+    let result = await calculateAverageScore(inputCode, RoassalLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
