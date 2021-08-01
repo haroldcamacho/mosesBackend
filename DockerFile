@@ -1,8 +1,8 @@
 FROM ubuntu:20.04
+WORKDIR /
 
-WORKDIR /app
+#WORKDIR /app
 
-COPY package*.json ./
 
 ENV PORT=3000
 
@@ -19,45 +19,77 @@ RUN npm install npm@latest -g && \
 
 RUN npm install
 
+#Copy NPM dependencies
+COPY package*.json ./
+
+
 #MOSES DEPENDENCIES
 
 RUN apt-get update && apt-get install -y \
-   automake \
-   build-essential \
-   curl \
    g++ \
    git \
-   graphviz \
-   imagemagick \
+   subversion \
+   automake \
+   libtool \
+   zlib1g-dev \
+   libicu-dev \
    libboost-all-dev \
    libbz2-dev \
-   libgoogle-perftools-dev \
    liblzma-dev \
-   libtool \
-   make \
    python-dev \
-   python-pip \
-   python-yaml \
-   subversion \
-   unzip \
-   wget \
-   zlib1g-dev 
+   graphviz \
+   imagemagick \
+   make \
+   cmake \
+   libgoogle-perftools-dev \
+   autoconf \
+   libcurl4-openssl-dev \
+   libxmlrpc-c++8v5 \
+   libxmlrpc-core-c3 \
+   xmlrpc-api-utils \
+   doxygen
 
-#MOSES INSTALLATION
-RUN mkdir -p /home/moses
-WORKDIR /home/moses
+#BOOST
+RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.gz/download -O boost_1_72_0.tar.gz \
+&& tar zxvf boost_1_72_0.tar.gz \
+&& cd boost_1_72_0 \
+&& ./bootstrap.sh \
+&& ./b2 -j4 --prefix=$PWD --libdir=$PWD/lib64 --layout=system link=static install || echo FAILURE
+
+
+#CMPH 2.0
+WORKDIR /
+RUN wget http://downloads.sourceforge.net/project/cmph/cmph/cmph-2.0.tar.gz -O cmph-2.0.tar.gz \
+&& tar zxvf cmph-2.0.tar.gz \
+&& cd cmph-2.0 \
+&& ./configure \
+&& make \
+&& make install
+
+#XMLRPC IF APT INSTALL DOESNT WORK
+# WORKDIR /downloads
+# RUN wget https://sourceforge.net/projects/xmlrpc-c/files/Xmlrpc-c%20Super%20Stable/1.33.17/xmlrpc-c-1.33.17.tgz/download \
+# && tar zxvf xmlrpc-c-1.33.17.tgz \
+# && cd xmlrpc-c-1.33.17 \
+
+
+#Download moses
+WORKDIR /
 RUN git clone https://github.com/moses-smt/mosesdecoder
-RUN mkdir moses-models
+
 
 #  Giza
-RUN wget -O giza-pp.zip "http://github.com/moses-smt/giza-pp/archive/master.zip" 
-RUN unzip giza-pp.zip
-RUN rm giza-pp.zip
-RUN mv giza-pp-master giza-pp
-WORKDIR /home/moses/giza-pp
-RUN make
-WORKDIR /home/moses
-RUN mkdir external-bin-dir
-RUN cp giza-pp/GIZA++-v2/GIZA++ external-bin-dir
-RUN cp giza-pp/GIZA++-v2/snt2cooc.out external-bin-dir
-RUN cp giza-pp/mkcls-v2/mkcls external-bin-dir
+RUN  git clone https://github.com/moses-smt/giza-pp.git \
+&& cd giza-pp \
+&& make 
+
+# Download training corpus
+WORKDIR /pharoProjectsNewModels
+RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1LmvpSKtqnQD-k_DtVQ91sDlh-3RsDfni' -O pharoCorpus.tar.xz \
+&& tar xvf pharoCorpus.tar.xz 
+
+#Copy giza into moses
+WORKDIR /mosesdecoder 
+RUN mkdir tools \
+&& cp /giza-pp/GIZA++-v2/GIZA++ /giza-pp/GIZA++-v2/snt2cooc.out \
+   /giza-pp/mkcls-v2/mkcls tools
