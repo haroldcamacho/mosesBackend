@@ -1,9 +1,0 @@
-GET http://localhost:3000/translations
-
-###
-POST http://localhost:3000/translations/translate
-Content-Type: text/html
-
-{
-   "inputCode": "arg1"
-}
