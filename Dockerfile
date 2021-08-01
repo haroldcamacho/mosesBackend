@@ -28,6 +28,7 @@ DEBIAN_FRONTEND=noninteractive \
    libxmlrpc-core-c3 \
    xmlrpc-api-utils \
    wget \
+   screen \
    doxygen
 
 #BOOST
@@ -54,12 +55,15 @@ RUN wget http://downloads.sourceforge.net/project/cmph/cmph/cmph-2.0.tar.gz -O c
 # && cd xmlrpc-c-1.33.17 \
 
 
-#Download moses
+#Download moses and set maximum phrase size to 20 instead of 7 (default)
 WORKDIR /root
-RUN git clone https://github.com/moses-smt/mosesdecoder
+RUN git clone https://github.com/moses-smt/mosesdecoder \
+&& cd mosesdecoder/scripts/training \
+&& sed -i 's/my $___MAX_PHRASE_LENGTH = "7";/my $___MAX_PHRASE_LENGTH = "20";/g' train-model.perl
 
 
 #  Giza
+WORKDIR /root
 RUN  git clone https://github.com/moses-smt/giza-pp.git \
 && cd giza-pp \
 && make 
@@ -72,8 +76,8 @@ RUN wget "https://drive.google.com/uc?export=download&id=1LmvpSKtqnQD-k_DtVQ91sD
 #Copy giza into moses
 WORKDIR /root/mosesdecoder 
 RUN mkdir tools \
-&& cp /giza-pp/GIZA++-v2/GIZA++ /giza-pp/GIZA++-v2/snt2cooc.out \
-   /giza-pp/mkcls-v2/mkcls tools
+&& cp /root/giza-pp/GIZA++-v2/GIZA++ /root/giza-pp/GIZA++-v2/snt2cooc.out \
+   /root/giza-pp/mkcls-v2/mkcls tools
 
 
 #Setup node
