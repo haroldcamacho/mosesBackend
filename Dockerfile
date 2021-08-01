@@ -1,9 +1,11 @@
 FROM ubuntu:20.04
-WORKDIR /
+WORKDIR /root
 
 #MOSES DEPENDENCIES
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+DEBIAN_FRONTEND=noninteractive \ 
+ apt-get install -y \
    g++ \
    git \
    subversion \
@@ -25,6 +27,7 @@ RUN apt-get update && apt-get install -y \
    libxmlrpc-c++8v5 \
    libxmlrpc-core-c3 \
    xmlrpc-api-utils \
+   wget \
    doxygen
 
 #BOOST
@@ -36,7 +39,7 @@ RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.
 
 
 #CMPH 2.0
-WORKDIR /
+WORKDIR /root
 RUN wget http://downloads.sourceforge.net/project/cmph/cmph/cmph-2.0.tar.gz -O cmph-2.0.tar.gz \
 && tar zxvf cmph-2.0.tar.gz \
 && cd cmph-2.0 \
@@ -52,7 +55,7 @@ RUN wget http://downloads.sourceforge.net/project/cmph/cmph/cmph-2.0.tar.gz -O c
 
 
 #Download moses
-WORKDIR /
+WORKDIR /root
 RUN git clone https://github.com/moses-smt/mosesdecoder
 
 
@@ -62,12 +65,12 @@ RUN  git clone https://github.com/moses-smt/giza-pp.git \
 && make 
 
 # Download training corpus
-WORKDIR /pharoProjectsNewModels
-RUN wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1LmvpSKtqnQD-k_DtVQ91sDlh-3RsDfni' -O pharoCorpus.tar.xz \
+WORKDIR /root/pharoProjectsNewModels
+RUN wget "https://drive.google.com/uc?export=download&id=1LmvpSKtqnQD-k_DtVQ91sDlh-3RsDfni" -O pharoCorpus.tar.xz  \
 && tar xvf pharoCorpus.tar.xz 
 
 #Copy giza into moses
-WORKDIR /mosesdecoder 
+WORKDIR /root/mosesdecoder 
 RUN mkdir tools \
 && cp /giza-pp/GIZA++-v2/GIZA++ /giza-pp/GIZA++-v2/snt2cooc.out \
    /giza-pp/mkcls-v2/mkcls tools
@@ -83,7 +86,7 @@ RUN npm install npm@latest -g && \
     npm install n -g && \
     n latest
 
-WORKDIR /app
+WORKDIR /root/app
 
 COPY package*.json ./
 
@@ -96,4 +99,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 #Setup for moses compilation
-WORKDIR /mosesdecoder 
+WORKDIR /root/mosesdecoder 

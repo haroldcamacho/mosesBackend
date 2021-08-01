@@ -13,7 +13,7 @@ $ docker pull haroldcj/mosesBackend
 Build the image
 
 ```bash
-$ docker run -it -p 5000:5000 haroldcj/mosesBackend
+$ docker run -it -p 3000:3000 haroldcj/mosesBackend
 ```
 
 Then compile moses 
