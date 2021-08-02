@@ -29,6 +29,7 @@ DEBIAN_FRONTEND=noninteractive \
    xmlrpc-api-utils \
    wget \
    screen \
+   nginx \
    doxygen
 
 #BOOST
@@ -94,7 +95,8 @@ WORKDIR /root/app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install \
+&& npm install pm2@latest -g
 
 COPY . .
 
@@ -104,3 +106,4 @@ EXPOSE 3000
 
 #Setup for moses compilation
 WORKDIR /root/mosesdecoder 
+RUN ./bjam --with-boost=/root/boost_1_72_0 --with-cmph=/root/cmph-2.0 --with-xmlrpc-c= -j4 
