@@ -47,7 +47,7 @@ router.post('/', async(req, res)=>{
     translation.translatedText =  translatedCode;
 
     try {
-        translation = await translation.save();
+        //translation = await translation.save();
         res.render(`translated.ejs`, {
             originalCode: inputCode , translatedCode: translatedCode})
     } catch (error) {
@@ -64,7 +64,7 @@ router.post('/translate', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -78,7 +78,7 @@ router.post('/glamour', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -93,7 +93,7 @@ router.post('/calypso', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -107,7 +107,7 @@ router.post('/fuel', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -121,7 +121,7 @@ router.post('/gt', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -135,7 +135,7 @@ router.post('/iceberg', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -149,7 +149,7 @@ router.post('/kernel', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -164,7 +164,7 @@ router.post('/metacello', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -179,7 +179,7 @@ router.post('/morphic', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -193,7 +193,7 @@ router.post('/refactoring', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -207,7 +207,7 @@ router.post('/seaside', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -221,7 +221,7 @@ router.post('/spec2', async(req, res)=>{
         translatedText: translatedCode
       })
       try {
-        const newTranslation = await translation.save()
+        //const newTranslation = await translation.save()
         res.status(201).set('Content-Type', 'text/html').send(translatedCode);
       } catch (err) {
         res.status(400).send({ message: err.message })
@@ -236,7 +236,7 @@ router.post('/roassal', async(req, res)=>{
       translatedText: translatedCode
     })
     try {
-      const newTranslation = await translation.save()
+      //const newTranslation = await translation.save()
       res.status(201).set('Content-Type', 'text/html').send(translatedCode);
     } catch (err) {
       res.status(400).send({ message: err.message })
