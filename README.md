@@ -7,17 +7,22 @@ This project contains the necessary files to setup a moses backend environment f
 First pull the Docker image 
 
 ```bash
-$ docker pull haroldcj/mosesBackend
+$ docker pull haroldcj/moses-compiled:pharoMoses
 ```
 
 Build the image
 
 ```bash
-$ docker run -it -p 3000:3000 haroldcj/mosesBackend
+$ docker run -it -p 3000:3000 haroldcj/moses-compiled:pharoMoses
 ```
 
-Then compile moses 
+Then start moses with the script 
 
 ```bash
-$ ./bjam --with-boost=/home/moses/Downloads/boost_1_60_0 --with-cmph=/home/moses/cmph-2.0 --with-irstlm=/home/moses/irstlm -j12
+$ sh startMosesMachines.sh
+```
+If necessary restart moses with the script
+
+```bash
+$ sh restartMoses.sh
 ```
