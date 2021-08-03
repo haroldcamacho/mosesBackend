@@ -50,10 +50,13 @@ RUN wget http://downloads.sourceforge.net/project/cmph/cmph/cmph-2.0.tar.gz -O c
 && make install
 
 #XMLRPC IF APT INSTALL DOESNT WORK
-# WORKDIR /downloads
-# RUN wget https://sourceforge.net/projects/xmlrpc-c/files/Xmlrpc-c%20Super%20Stable/1.33.17/xmlrpc-c-1.33.17.tgz/download \
-# && tar zxvf xmlrpc-c-1.33.17.tgz \
-# && cd xmlrpc-c-1.33.17 \
+WORKDIR /root
+RUN wget https://sourceforge.net/projects/xmlrpc-c/files/Xmlrpc-c%20Super%20Stable/1.33.17/xmlrpc-c-1.33.17.tgz/download -O xmlrpc-c-1.33.17.tgz\
+&& tar zxvf xmlrpc-c-1.33.17.tgz \
+&& cd xmlrpc-c-1.33.17 \
+&& ./configure \
+&& make \
+&& make install 
 
 
 #Download moses and set maximum phrase size to 20 instead of 7 (default)
