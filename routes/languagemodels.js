@@ -1,3 +1,4 @@
+//Backend before not projects
 const express = require('express');
 const router = express.Router();
 const { exec } = require("child_process");
@@ -104,7 +105,6 @@ let onlyNumber = score[0].match(onlyNumberRegExp);
 let convertedToNumber = parseFloat(onlyNumber[0]);
 return convertedToNumber;
 }
-//dsadasdas
 
 async function calculateAverageScore(inputCode, pathToLM) {
 let inputCodeSeparatedByLines = TextUtils.processInputCodeForMoses(inputCode);
