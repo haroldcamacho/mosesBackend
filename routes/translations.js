@@ -18,7 +18,6 @@ const MorphicEndpointXMLRPC = "http://localhost:8010/RPC2";
 const RefactoringEndpointXMLRPC = "http://localhost:8000/RPC2";
 const SeasideEndpointXMLRPC = "http://localhost:7090/RPC2";
 const Spec2EndpointXMLRPC = "http://localhost:7080/RPC2";
-const RoassalEndpointXMLRPC = "http://localhost:7070/RPC2";
 
 const verb = "translate";
 const format = "xml";
@@ -226,21 +225,6 @@ router.post('/spec2', async(req, res)=>{
       } catch (err) {
         res.status(400).send({ message: err.message })
       } 
-})
-
-//Spec2
-router.post('/roassal', async(req, res)=>{
-  const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, RoassalEndpointXMLRPC);
-  const translation = new Translation({
-      textToTranslate: req.body.inputCode,
-      translatedText: translatedCode
-    })
-    try {
-      //const newTranslation = await translation.save()
-      res.status(201).set('Content-Type', 'text/html').send(translatedCode);
-    } catch (err) {
-      res.status(400).send({ message: err.message })
-    } 
 })
 
 // async function translateCodeWithouthLinebreaks(originalCode){
