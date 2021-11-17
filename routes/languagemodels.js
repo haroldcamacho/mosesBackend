@@ -104,7 +104,6 @@ let onlyNumber = score[0].match(onlyNumberRegExp);
 let convertedToNumber = parseFloat(onlyNumber[0]);
 return convertedToNumber;
 }
-//dsadasdas
 
 async function calculateAverageScore(inputCode, pathToLM) {
 let inputCodeSeparatedByLines = TextUtils.processInputCodeForMoses(inputCode);
