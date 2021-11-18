@@ -26,77 +26,72 @@ router.post('/pharo', async(req, res)=>{
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/glamour', async(req, res)=>{
+router.post('/notGlamour', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, GlamourLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/spec2', async(req, res)=>{
+router.post('/notSpec2', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, Spec2LanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/calypso', async(req, res)=>{
+router.post('/notCalypso', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, CalypsoLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/fuel', async(req, res)=>{
+router.post('/notFuel', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, FuelLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/iceberg', async(req, res)=>{
+router.post('/notIceberg', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, IcebergLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/kernel', async(req, res)=>{
+router.post('/notKernel', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, KernelLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/morphic', async(req, res)=>{
+router.post('/notMorphic', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, MorphicLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/refactoring', async(req, res)=>{
+router.post('/notRefactoring', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, RefactoringLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/gt', async(req, res)=>{
+router.post('/notGt', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, GTLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/metacello', async(req, res)=>{
+router.post('/notMetacello', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, MetacelloLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/seaside', async(req, res)=>{
+router.post('/notSeaside', async(req, res)=>{
     let inputCode = req.body.inputCode;
     let result = await calculateAverageScore(inputCode, SeaSideLanguageModel);
     res.status(200).send(JSON.stringify(result));
 })
 
-router.post('/roassal', async(req, res)=>{
-    let inputCode = req.body.inputCode;
-    let result = await calculateAverageScore(inputCode, RoassalLanguageModel);
-    res.status(200).send(JSON.stringify(result));
-})
 
 function calculateScoreFromResult(lmResult){
 let score = lmResult.match(logProbabilityRegExp);

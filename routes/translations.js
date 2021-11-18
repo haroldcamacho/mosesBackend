@@ -70,7 +70,7 @@ router.post('/translate', async(req, res)=>{
       } 
 })
 
-router.post('/glamour', async(req, res)=>{
+router.post('/notGlamour', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, GlamourEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -85,7 +85,7 @@ router.post('/glamour', async(req, res)=>{
 })
 
 //Calypso
-router.post('/calypso', async(req, res)=>{
+router.post('/notCalypso', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, CalypsoEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -99,7 +99,7 @@ router.post('/calypso', async(req, res)=>{
       } 
 })
 //Fuel
-router.post('/fuel', async(req, res)=>{
+router.post('/notFuel', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, FuelEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -113,7 +113,7 @@ router.post('/fuel', async(req, res)=>{
       } 
 })
 //GT
-router.post('/gt', async(req, res)=>{
+router.post('/notGt', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, GTEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -127,7 +127,7 @@ router.post('/gt', async(req, res)=>{
       } 
 })
 //Iceberg
-router.post('/iceberg', async(req, res)=>{
+router.post('/notIceberg', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, IcebergEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -141,7 +141,7 @@ router.post('/iceberg', async(req, res)=>{
       } 
 })
 //Kernel
-router.post('/kernel', async(req, res)=>{
+router.post('/notKernel', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, KernelEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -156,7 +156,7 @@ router.post('/kernel', async(req, res)=>{
 })
 
 //Metacello
-router.post('/metacello', async(req, res)=>{
+router.post('/notMetacello', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, MetacelloEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -171,7 +171,7 @@ router.post('/metacello', async(req, res)=>{
 })
 
 //Morphic
-router.post('/morphic', async(req, res)=>{
+router.post('/notMorphic', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, MorphicEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -185,7 +185,7 @@ router.post('/morphic', async(req, res)=>{
       } 
 })
 //Refactoring
-router.post('/refactoring', async(req, res)=>{
+router.post('/notRefactoring', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, RefactoringEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -199,7 +199,7 @@ router.post('/refactoring', async(req, res)=>{
       } 
 })
 //Seaside
-router.post('/seaside', async(req, res)=>{
+router.post('/notSeaside', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, SeasideEndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -213,7 +213,7 @@ router.post('/seaside', async(req, res)=>{
       } 
 })
 //Spec2
-router.post('/spec2', async(req, res)=>{
+router.post('/notSpec2', async(req, res)=>{
     const translatedCode = await translateCodeWithouthLinebreaks(req.body.inputCode, Spec2EndpointXMLRPC);
     const translation = new Translation({
         textToTranslate: req.body.inputCode,
@@ -227,34 +227,6 @@ router.post('/spec2', async(req, res)=>{
       } 
 })
 
-// async function translateCodeWithouthLinebreaks(originalCode){
-//     //console.log("ORGINAL CODE\n", originalCode)
-//     let renamedCode;
-//     let processedInputCode = processInputCode(originalCode);
-//     console.log("PROCESSED INPUT CODE\n", processedInputCode);
-//     let inputCodeSeparatedByLines = processInputCodeForMoses(originalCode);
-//     console.log("CODE DIVIDED BY LINES OG \n",inputCodeSeparatedByLines);
-//     let mapOfVariablesToRename = mapDecompiledCodeVariablesWithPositions(processedInputCode);
-//     console.log("MAP LENGTH\n", mapOfVariablesToRename.size);
-//     if(mapOfVariablesToRename.size>0){
-//         console.log("VARIABLES TO RENAME\n", mapOfVariablesToRename);
-//         let translatedCodeSeparatedByLines = await sendLineByLineToMoses(inputCodeSeparatedByLines);
-//         console.log("PROCESSED CODE BY MOSES\n", translatedCodeSeparatedByLines);
-//         let translatedCodeSeparatedByWords = separateCodeInLinesByWords(translatedCodeSeparatedByLines);
-//         console.log("TRANSLATED CODE SEPARATED BY WORDS\n", translatedCodeSeparatedByWords);
-//         console.log("NUMBER OF WORDS OG CODE\n", processedInputCode.length);
-//         console.log("NUMBER OF WORDS TRANSLATED CODE\n", translatedCodeSeparatedByWords.length);
-//         //renamedCode = renameDecompiledCode(mapOfVariablesToRename, translatedCodeSeparatedByWords, processedInputCode);
-//         //renamedCode = renamedCode.join(" ");
-//     }
-//     else{
-//         renamedCode = originalCode;
-//     }
-
-
-//     return "placeholder";
-//     //return renamedCode;
-// }
 
 async function queryLanguageModel(lineOfText, languageModelPath){
   let shellCommand = "echo "+lineOfText+" \\ | /root/mosesdecoder/bin/query "+ languageModelPath;
